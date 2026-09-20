@@ -545,8 +545,8 @@ function render(opts){
   if(D.lastErr&&D.lastOk) warn='<div class="banner">Live update failed. Showing data from '+fmtClock(D.lastOk)+'. <button class="btn ghost" data-act="retry">Retry</button></div>';
   else if(D.lastErr&&!D.lastOk) warn='<div class="banner err">No connection to BWF right now. Showing the last saved schedule from this phone. <button class="btn ghost" data-act="retry">Retry</button></div>';
   if(S.draw) html=viewDraw(ctx);
-  else if(S.tab==='me') html=viewMe(ctx); else if(S.tab==='players') html=viewPlayers(ctx); else if(S.tab==='countries') html=viewCountries(ctx); else if(S.tab==='draws') html=viewDraws(ctx); else html=viewVenues(ctx);
-  v.innerHTML=warn+html+'<p class="foot">Times are local Cagliari time. Data comes live from the BWF tournament feed (extranet-lv.bwfbadminton.com), the same source as bwfbadminton.com. Estimated start times are a guess based on how far behind schedule each venue is running right now. Next-round matches appear once the previous round has been played. Nothing here is official; always check the venue boards.</p>';
+  else if(S.tab==='me') html=viewMe(ctx); else if(S.tab==='players') html=viewPlayers(ctx); else if(S.tab==='countries') html=viewCountries(ctx); else if(S.tab==='draws') html=viewDraws(ctx); else if(S.tab==='stats') html=viewStats(ctx); else html=viewVenues(ctx);
+  v.innerHTML=warn+html+'<p class="foot">Times are local Cagliari time. Data comes live from the BWF tournament feed (extranet-lv.bwfbadminton.com), the same source as bwfbadminton.com. Estimated start times are a guess based on how far behind schedule each venue is running right now. Next-round matches appear once the previous round has been played. Nothing here is official; always check the venue boards. <span id="usage">'+usageText()+'</span></p>';
   if(S.draw){ const br=document.getElementById('bracket'); if(br&&keep&&S.draw.keepLeft!=null){ br.scrollLeft=S.draw.keepLeft; } }
   if(keep){ window.scrollTo(0,y); if(S.draw) afterDrawRender(); }
   else {
@@ -892,10 +892,11 @@ function updHash(){
 function readHash(){
   const h=(location.hash||'').slice(1);
   if(!h) return;
-  const m=/^p=(\d+)$/.exec(h); if(m){ S.tab='players'; S.pendingPlayer=m[1]; return; }
   const dm=/^d=(\d+)(?:-(\d+))?$/.exec(h); if(dm){ S.tab='draws'; S.draw={id:dm[1], pid:dm[2]||null, from:'list', part:null}; return; }
-  const c=/^c=([A-Z]{3})$/.exec(h); if(c){ S.tab='countries'; S.country=c[1]; return; }
-  if(h==='venues') S.tab='venues'; else if(h==='players') S.tab='players'; else if(h==='me') S.tab='me'; else if(h==='draws') S.tab='draws';
+  const m=/^p=(\d+)$/.exec(h); if(m){ S.tab='players'; S.pendingPlayer=m[1]; S.draw=null; return; }
+  const c=/^c=([A-Z]{3})$/.exec(h); if(c){ S.tab='countries'; S.country=c[1]; S.draw=null; return; }
+  const tabs={venues:1,players:1,me:1,draws:1,countries:1,stats:1};
+  if(tabs[h]){ S.tab=h; S.draw=null; }
 }
 function shareUrl(id){ const base=(window.SHARE_BASE||(location.origin+location.pathname)); return base+'#p='+id; }
 async function share(id,name){
@@ -942,6 +943,7 @@ document.getElementById('view').addEventListener('click',e=>{
   else if(act==='cfilter'){ S.cfilter=b.dataset.f; render(); }
   else if(act==='clear'){ S.q=''; S.focusSearch=b.dataset.for; render(); }
   else if(act==='retry'){ load({force:true}); }
+  else if(act==='statsreload'){ U.days=null; render(); }
 });
 window.addEventListener('scroll',()=>{ S.lastScroll=Date.now(); },{passive:true});
 document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'){ if(Date.now()-D.lastOk>30000) load(); else render({bg:true}); } });
@@ -949,12 +951,44 @@ setInterval(()=>{ if(document.visibilityState==='visible'){ if(Date.now()-(D.las
 window.addEventListener('hashchange',()=>{ readHash(); resolvePending(); render(); });
 function resolvePending(){ if(S.pendingPlayer){ const p=D.players.get(S.pendingPlayer); if(p){ S.player={i:p.i,n:p.n,c:p.c}; S.pendingPlayer=null; } } }
 
+/* ---------- usage counter, just for fun ---------- */
+// Abacus is a free, anonymous hit counter (https://abacus.jasoncameron.dev). Three counters: page loads, distinct phones
+// (first visit ever, remembered in localStorage) and phones per Cagliari day. Nothing personal is sent; it sees the same
+// request any image on a page would. Not counted: local test runs, automated browsers and phones with esc26:nocount set.
+const CNT='https://abacus.jasoncameron.dev/', CNS='esc26-cvpcvp';
+const U={devices:null, today:null, days:null, at:0};
+function cntCall(kind,key){ return fetch(CNT+kind+'/'+CNS+'/'+key,{cache:'no-store',keepalive:true}).then(r=>r.ok?r.json():null).then(j=>(j&&typeof j.value==='number')?j.value:null).catch(()=>null); }
+function track(){
+  try{
+    if(!/^https?:$/.test(location.protocol)||/^(localhost|127\.0\.0\.1)$/.test(location.hostname)||navigator.webdriver||store.get('nocount')) return;
+    const day=romeNow().slice(0,10);
+    cntCall('hit','loads');
+    const first=!store.get('counted'); if(first) store.set('counted',day);
+    const newDay=store.get('countedday')!==day; if(newDay) store.set('countedday',day);
+    Promise.all([
+      first?cntCall('hit','devices').then(v=>{ if(v==null) store.del('counted'); return v; }):cntCall('get','devices'),
+      newDay?cntCall('hit','day-'+day).then(v=>{ if(v==null) store.del('countedday'); return v; }):cntCall('get','day-'+day)
+    ]).then(([d,t])=>{ U.devices=d; U.today=t; const el=document.getElementById('usage'); if(el) el.textContent=usageText(); });
+  }catch(e){}
+}
+function usageText(){ if(U.devices==null) return ''; return 'Used on '+U.devices+' phone'+(U.devices===1?'':'s')+' so far'+(U.today!=null?', '+U.today+' today':'')+'.'; }
+function viewStats(){ // hidden page: #stats
+  let html='<h2>Usage</h2><p class="small muted">Counted per phone (first visit ever, and once per day). Page loads count every open of the site. Just for fun, not an official statistic.</p>';
+  if(!U.days){ html+='<div class="stack"><div class="skel"></div></div>'; if(!U.busy){ U.busy=true; const keys=['loads','devices'].concat(CFG.days.map(d=>'day-'+d)); Promise.all(keys.map(k=>cntCall('get',k))).then(vs=>{ U.days={}; keys.forEach((k,i)=>U.days[k]=vs[i]); U.busy=false; U.at=Date.now(); render({bg:true}); }); } return html; }
+  const v=k=>U.days[k]==null?'–':U.days[k];
+  html+='<div class="card"><div class="row"><div class="grow"><div class="ev">Phones so far</div><div class="big">'+v('devices')+'</div></div><div class="grow"><div class="ev">Page loads</div><div class="big">'+v('loads')+'</div></div></div></div>';
+  html+='<div class="card" style="margin-top:10px"><div class="ev" style="margin-bottom:6px">Phones per day</div>'+CFG.days.map(d=>'<div class="row" style="padding:4px 0;border-bottom:1px solid var(--line)"><span class="grow">'+dayLabel(d)+'</span><b>'+v('day-'+d)+'</b></div>').join('')+'</div>';
+  html+='<p class="small muted" style="margin-top:10px">Fetched '+fmtClock(U.at)+'. <button class="btn ghost" data-act="statsreload">Refresh</button></p>';
+  return html;
+}
+
 /* ---------- boot ---------- */
 readHash();
 bootFromCache();
 resolvePending();
 render();
 load().then(()=>{ resolvePending(); render({bg:true}); });
+track();
 })();
 </script>
 </body>
