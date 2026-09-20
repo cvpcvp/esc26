@@ -127,7 +127,10 @@ h3{font:600 15px/1.2 "Barlow",system-ui,sans-serif;margin:0 0 6px}
 .when .est{font-size:12px;color:var(--warn);font-weight:600;line-height:1.1}
 .when .est.ok{color:var(--ink3);font-weight:500}
 .vchip{display:inline-flex;align-items:center;gap:4px;border-radius:7px;padding:3px 6px;font:700 12px/1 "Barlow Condensed",system-ui,sans-serif;letter-spacing:.3px;text-transform:uppercase}
-.vchip .lt{font-size:14px}
+.vchip .lt{font-size:15px}
+.when .vchip{padding:4px 9px;border-radius:9px;gap:6px;margin-top:2px}
+.when .vchip .lt{font-size:24px;line-height:1}
+.when .vchip span:not(.lt){font-size:13px}
 .v-A{background:var(--vA-soft);color:var(--vA)} .v-B{background:var(--vB-soft);color:var(--vB)} .v-C{background:var(--vC-soft);color:var(--vC)} .v-{background:var(--surface2);color:var(--ink2)}
 .court{font-size:12px;color:var(--ink2);font-weight:600}
 .mhead{display:flex;align-items:center;gap:8px;margin-bottom:6px}
@@ -233,6 +236,8 @@ h3{font:600 15px/1.2 "Barlow",system-ui,sans-serif;margin:0 0 6px}
 .tab.on{color:var(--accent)}
 .empty{padding:24px 12px;text-align:center;color:var(--ink2)}
 .foot{margin-top:28px;font-size:12px;color:var(--ink3);line-height:1.5}
+.madeby{margin-top:26px;text-align:center;font-size:13px;color:var(--ink2);line-height:1.6}
+.lnk{background:none;border:0;padding:0;margin:0;font:inherit;font-weight:600;color:var(--accent);text-decoration:underline;text-underline-offset:2px;cursor:pointer}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
 .seg button{border:0;background:transparent;padding:7px 10px;font-size:13px;font-weight:600;color:var(--ink2)}
 .seg button.on{background:var(--ink);color:var(--bg)}
@@ -627,6 +632,7 @@ function viewMe(ctx){
     html+='<div class="hero"><h2>Who are you?</h2><p>Type your name as it appears in the draw. This phone will remember it.</p>'+searchBox('q-me','Your name, e.g. Pedersen',S.q,'setme')+'</div>';
     html+='<div class="sres" id="q-me-res">'+searchResults(S.q,{act:'setme'})+'</div>';
     if(S.follow.length) html+=followSection(ctx);
+    html+=madeBy();
     return html;
   }
   const p=playerFromIndex(S.me);
@@ -635,7 +641,11 @@ function viewMe(ctx){
   html+=drawButtons(p);
   html+=playerMatches(p,ctx);
   html+=followSection(ctx);
+  html+=madeBy();
   return html;
+}
+function madeBy(){ // small credit at the bottom of the Me page; the name opens Claus's own match list
+  return '<div class="madeby">Made by <button class="lnk" data-act="open" data-id="76095">Claus Vagner</button> <span class="bflag" style="width:auto">'+flag('DEN')+'</span> Denmark. Cheer him on if you see him play 🙂</div>';
 }
 function followSection(ctx){
   let html='<h2 style="margin-top:22px">Following</h2>';
