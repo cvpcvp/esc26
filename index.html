@@ -88,7 +88,9 @@ h3{font:600 15px/1.2 "Barlow",system-ui,sans-serif;margin:0 0 6px}
 /* search */
 .search{position:relative}
 .sres{margin-top:10px}
-.search input{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 40px 12px 14px;font-size:16px}
+.search input{width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:12px 40px 12px 14px;font-size:16px;-webkit-appearance:none;appearance:none}
+.search input::-webkit-search-cancel-button,.search input::-webkit-search-decoration{-webkit-appearance:none;display:none}
+.search input::placeholder{color:var(--ink3)}
 .search .clr{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:transparent;width:32px;height:32px;border-radius:8px;color:var(--ink2);font-size:18px}
 .list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}
 .list > *{border-top:1px solid var(--line)} .list > :first-child{border-top:0}
@@ -97,7 +99,7 @@ h3{font:600 15px/1.2 "Barlow",system-ui,sans-serif;margin:0 0 6px}
 .prow .nm{font-weight:600}
 .prow .sub{font-size:12px;color:var(--ink2)}
 .flag{font-size:18px;line-height:1;width:24px;text-align:center;flex:0 0 auto}
-.cc{font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--ink2)}
+.cc{font-size:10px;font-weight:700;letter-spacing:.3px;color:var(--ink2);background:var(--surface2);border-radius:4px;padding:2px 3px;line-height:1}
 
 /* chips */
 .chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
@@ -239,11 +241,25 @@ const CFG = {
 const ISO = {ARM:'AM',AUT:'AT',AZE:'AZ',BEL:'BE',BIH:'BA',BLR:'BY',BUL:'BG',CRO:'HR',CYP:'CY',CZE:'CZ',DEN:'DK',ESP:'ES',EST:'EE',FIN:'FI',FRA:'FR',GBR:'GB',GEO:'GE',GER:'DE',GRE:'GR',HUN:'HU',IRL:'IE',ISL:'IS',ISR:'IL',ITA:'IT',KOS:'XK',LAT:'LV',LIE:'LI',LTU:'LT',LUX:'LU',MDA:'MD',MKD:'MK',MLT:'MT',MNE:'ME',NED:'NL',NOR:'NO',POL:'PL',POR:'PT',ROU:'RO',SLO:'SI',SMR:'SM',SRB:'RS',SUI:'CH',SVK:'SK',SWE:'SE',TUR:'TR',UKR:'UA',FRO:'FO',GIB:'GI',AND:'AD',MON:'MC',ALB:'AL',RUS:'RU',KAZ:'KZ',GRL:'GL',USA:'US',CAN:'CA',AUS:'AU',IND:'IN',JPN:'JP',CHN:'CN',KOR:'KR',INA:'ID',MAS:'MY',THA:'TH',SGP:'SG',RSA:'ZA',NZL:'NZ',BRA:'BR',PER:'PE',HKG:'HK',TPE:'TW'};
 const NAMES = {ARM:'Armenia',AUT:'Austria',AZE:'Azerbaijan',BEL:'Belgium',BIH:'Bosnia and Herzegovina',BLR:'Belarus',BUL:'Bulgaria',CRO:'Croatia',CYP:'Cyprus',CZE:'Czechia',DEN:'Denmark',ESP:'Spain',EST:'Estonia',FIN:'Finland',FRA:'France',GBR:'Great Britain',GEO:'Georgia',GER:'Germany',GRE:'Greece',HUN:'Hungary',IRL:'Ireland',ISL:'Iceland',ISR:'Israel',ITA:'Italy',KOS:'Kosovo',LAT:'Latvia',LIE:'Liechtenstein',LTU:'Lithuania',LUX:'Luxembourg',MDA:'Moldova',MKD:'North Macedonia',MLT:'Malta',MNE:'Montenegro',NED:'Netherlands',NOR:'Norway',POL:'Poland',POR:'Portugal',ROU:'Romania',SLO:'Slovenia',SMR:'San Marino',SRB:'Serbia',SUI:'Switzerland',SVK:'Slovakia',SWE:'Sweden',TUR:'Türkiye',UKR:'Ukraine',ENG:'England',SCO:'Scotland',WAL:'Wales',FRO:'Faroe Islands',GIB:'Gibraltar',AND:'Andorra',MON:'Monaco',ALB:'Albania',RUS:'Russia',KAZ:'Kazakhstan',GRL:'Greenland',USA:'USA',CAN:'Canada',AUS:'Australia',IND:'India',JPN:'Japan',CHN:'China',KOR:'Korea',INA:'Indonesia',MAS:'Malaysia',THA:'Thailand',SGP:'Singapore',RSA:'South Africa',NZL:'New Zealand',BRA:'Brazil',PER:'Peru',HKG:'Hong Kong',TPE:'Chinese Taipei'};
 const SUBFLAG = {ENG:'\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}',SCO:'\u{1F3F4}\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}',WAL:'\u{1F3F4}\u{E0067}\u{E0062}\u{E0077}\u{E006C}\u{E0073}\u{E007F}'};
-function flag(cc){
-  if(!cc) return '';
+let FLAGS_OK=null;
+function flagsSupported(){
+  if(FLAGS_OK!==null) return FLAGS_OK;
+  try{
+    const c=document.createElement('canvas'); const x=c.getContext('2d'); x.font='24px system-ui, sans-serif';
+    const pair=x.measureText('\u{1F1E9}\u{1F1F0}').width, single=x.measureText('\u{1F1E9}').width;
+    FLAGS_OK = pair < single*1.6; // a real flag glyph is about one glyph wide; letters render as two
+  }catch(e){ FLAGS_OK=true; }
+  return FLAGS_OK;
+}
+function flagEmoji(cc){
   if(SUBFLAG[cc]) return SUBFLAG[cc];
   const iso=ISO[cc]; if(!iso) return '';
   return String.fromCodePoint(...[...iso].map(ch=>0x1F1E6+ch.charCodeAt(0)-65));
+}
+function flag(cc){ // emoji flag where the platform draws them, otherwise a small code badge
+  if(!cc) return '';
+  if(flagsSupported()){ const e=flagEmoji(cc); if(e) return e; }
+  return '<span class="cc">'+esc(cc)+'</span>';
 }
 function cname(cc){ return NAMES[cc]||cc||'—'; }
 
@@ -423,9 +439,9 @@ function statusOf(m, ctx){
 }
 function teamHtml(team, seed, isWin, isLose, sets, live, hl){
   const cc=team[0]?team[0].c:'';
-  const names=team.map((p,i)=>'<span class="p'+(hl&&hl.has(p.i)?' me':'')+'">'+(i>0&&p.c&&p.c!==cc?'<span class="pflag" title="'+esc(cname(p.c))+'">'+(flag(p.c)||esc(p.c))+'</span> ':'')+esc(p.n)+'</span>').join('<span class="sep">/</span>');
+  const names=team.map((p,i)=>'<span class="p'+(hl&&hl.has(p.i)?' me':'')+'">'+(i>0&&p.c&&p.c!==cc?'<span class="pflag" title="'+esc(cname(p.c))+'">'+flag(p.c)+'</span> ':'')+esc(p.n)+'</span>').join('<span class="sep">/</span>');
   const setsHtml=sets.map((s,i)=>'<span'+(live&&i===sets.length-1?' class="cur"':'')+'>'+s+'</span>').join('');
-  return '<div class="team'+(isWin?' win':'')+(isLose?' lose':'')+'"><span class="flag" title="'+esc(cname(cc))+'">'+(flag(cc)||'<span class="cc">'+esc(cc)+'</span>')+'</span><div class="names">'+(names||'<span class="muted">Bye</span>')+(seed?'<span class="seed">['+esc(seed)+']</span>':'')+'</div><div class="sets">'+setsHtml+'</div></div>';
+  return '<div class="team'+(isWin?' win':'')+(isLose?' lose':'')+'"><span class="flag" title="'+esc(cname(cc))+'">'+flag(cc)+'</span><div class="names">'+(names||'<span class="muted">Bye</span>')+(seed?'<span class="seed">['+esc(seed)+']</span>':'')+'</div><div class="sets">'+setsHtml+'</div></div>';
 }
 function matchCard(m, ctx, opt){
   opt=opt||{};
@@ -507,7 +523,7 @@ function searchResults(q, opt){
   }
   hits.sort((a,b)=>{ const ea=a.k===nq?0:1, eb=b.k===nq?0:1; if(ea!==eb) return ea-eb; return a.n.split(' ').pop().localeCompare(b.n.split(' ').pop())||a.n.localeCompare(b.n); });
   if(!hits.length) return '<div class="empty">No player found for “'+esc(q)+'”. Try the surname only, as written in the draw. Players whose first match is not scheduled yet cannot be found.</div>';
-  return '<div class="list">'+hits.slice(0,25).map(p=>'<button class="prow" data-act="'+(opt.act||'open')+'" data-id="'+p.i+'"><span class="flag">'+(flag(p.c)||'<span class="cc">'+esc(p.c)+'</span>')+'</span><div class="grow"><div class="nm">'+esc(p.n)+'</div><div class="sub">'+esc(cname(p.c))+' · '+[...p.ev].join(', ')+'</div></div>'+(isFollowed(p.i)?'<span class="tiny muted">★</span>':'')+'</button>').join('')+(hits.length>25?'<div class="empty small">'+(hits.length-25)+' more, keep typing…</div>':'')+'</div>';
+  return '<div class="list">'+hits.slice(0,25).map(p=>'<button class="prow" data-act="'+(opt.act||'open')+'" data-id="'+p.i+'"><span class="flag">'+flag(p.c)+'</span><div class="grow"><div class="nm">'+esc(p.n)+'</div><div class="sub">'+esc(cname(p.c))+' · '+[...p.ev].join(', ')+'</div></div>'+(isFollowed(p.i)?'<span class="tiny muted">★</span>':'')+'</button>').join('')+(hits.length>25?'<div class="empty small">'+(hits.length-25)+' more, keep typing…</div>':'')+'</div>';
 }
 
 function nextMatchLine(p, ctx){
