@@ -168,22 +168,32 @@ h3{font:600 15px/1.2 "Barlow",system-ui,sans-serif;margin:0 0 6px}
 .next{background:var(--accent-soft);color:var(--accent-ink);border-radius:12px;padding:10px 12px;font-size:14px}
 .next b{font-weight:700}
 
-/* road ahead + draw */
-.road .rhead{margin-bottom:6px}
-.road-steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
-.road-steps li{display:grid;grid-template-columns:44px 1fr;gap:8px;padding:7px 0;border-top:1px solid var(--line);align-items:start}
-.road-steps li:first-child{border-top:0}
-.road-steps li.now .rd{color:var(--accent)}
-.road-steps .rd{font:700 14px/1.3 "Barlow Condensed",system-ui,sans-serif;letter-spacing:.4px;text-transform:uppercase;color:var(--ink2);padding-top:1px}
-.road-steps .who{font-size:14px;line-height:1.35}
-.road-steps .who .sep{color:var(--ink3)}
-.road-steps .seed{font-size:11px;color:var(--ink3);font-weight:600}
-.match.tbd{border-style:dashed;box-shadow:none;opacity:.85}
-.match.tbd .me{background:var(--hl);border-radius:4px;padding:0 3px}
-.match.tbd .seed{font-size:11px;color:var(--ink3);font-weight:600}
-.pill.sched{background:var(--surface2);color:var(--ink2)}
-.byes summary{cursor:pointer;padding:4px 2px}
-.chip.rd{padding:7px 11px}
+/* bracket */
+.rchips{position:sticky;top:calc(env(safe-area-inset-top,0px) + 59px);z-index:5;background:var(--bg);padding-top:4px;margin:0 -16px;padding-left:16px;padding-right:16px}
+.bracket{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;margin:4px -16px 0;padding:6px 16px 10px;scrollbar-width:none}
+.bracket::-webkit-scrollbar{display:none}
+.bcol{flex:0 0 min(80vw,330px);scroll-snap-align:start;padding:0 14px;box-sizing:border-box}
+.bcol.first{padding-left:0}
+.bslots{display:flex;flex-direction:column}
+.bslot{flex:1;position:relative;display:flex;align-items:center;min-height:0}
+.bcol:not(.first) .bslot::before{content:"";position:absolute;left:-28px;width:14px;top:25%;bottom:25%;border:1.5px solid var(--line);border-left:0;border-radius:0 8px 8px 0}
+.bcol:not(.first) .bslot::after{content:"";position:absolute;left:-14px;width:14px;top:50%;border-top:1.5px solid var(--line)}
+.bbox{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:5px 8px 6px;box-shadow:var(--shadow);position:relative;z-index:1}
+.bbox.mine{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft),var(--shadow)}
+.bbox.live{border-color:var(--live)}
+.bbox.bye,.bbox.tbd{opacity:.6;box-shadow:none;border-style:dashed}
+.bmeta{display:flex;justify-content:space-between;gap:6px;font-size:10.5px;color:var(--ink3);font-weight:600;letter-spacing:.2px;text-transform:uppercase;margin-bottom:2px;min-height:13px}
+.bmeta .lv{color:var(--live)} .bmeta .wu{color:var(--warn)} .bmeta .mn{font-weight:500;text-transform:none}
+.bteam{display:grid;grid-template-columns:18px 1fr auto;gap:5px;align-items:center;font-size:13px;line-height:1.25;padding:1px 0}
+.bteam .bflag{font-size:13px;line-height:1;width:18px;text-align:center}
+.bteam .bflag .cc{font-size:9px;padding:1px 2px}
+.bteam .bn{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.bteam.win .bn{font-weight:700} .bteam.lose .bn{color:var(--ink2)}
+.bteam.me .bn{background:var(--hl);border-radius:3px;padding:0 3px}
+.bteam .seed{font-size:10px;color:var(--ink3);font-weight:600}
+.bteam .bs{display:flex;gap:4px;font:600 12.5px/1 "Barlow Condensed",system-ui,sans-serif;color:var(--ink2);font-variant-numeric:tabular-nums}
+.bteam .bs span{min-width:15px;text-align:right}
+.bteam.win .bs{color:var(--ink)}
 /* venues */
 .vcard{border-left:5px solid var(--line)}
 .vcard.v-A{border-left-color:var(--vA);background:var(--surface);color:var(--ink)}
@@ -217,8 +227,8 @@ h3{font:600 15px/1.2 "Barlow",system-ui,sans-serif;margin:0 0 6px}
 .onrow .sc{font:600 14px/1 "Barlow Condensed",system-ui,sans-serif;color:var(--ink2);margin-left:6px;white-space:nowrap}
 /* tab bar */
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
-.tabbar-in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);height:var(--tab-h)}
-.tab{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--ink2);font-size:11px;font-weight:600;letter-spacing:.3px;text-transform:uppercase}
+.tabbar-in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);height:var(--tab-h)}
+.tab{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--ink2);font-size:10px;font-weight:600;letter-spacing:.2px;text-transform:uppercase;padding:0 2px}
 .tab svg{width:22px;height:22px}
 .tab.on{color:var(--accent)}
 .empty{padding:24px 12px;text-align:center;color:var(--ink2)}
@@ -246,6 +256,7 @@ h3{font:600 15px/1.2 "Barlow",system-ui,sans-serif;margin:0 0 6px}
   <button class="tab" data-tab="players" id="tab-players"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Players</button>
   <button class="tab" data-tab="countries" id="tab-countries"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V4"/><path d="M4 4h13l-2 4 2 4H4"/></svg>Countries</button>
   <button class="tab" data-tab="venues" id="tab-venues"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V8l7-4 7 4v13"/><path d="M9 21v-6h6v6"/></svg>Venues</button>
+  <button class="tab" data-tab="draws" id="tab-draws"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h5v4H3zM3 15h5v4H3zM16 10h5v4h-5z"/><path d="M8 7h3v10H8M11 12h5"/></svg>Draws</button>
 </div></nav>
 
 <script>
@@ -519,6 +530,7 @@ function render(opts){
   if(opts.bg&&Date.now()-(S.lastScroll||0)<1500){ clearTimeout(S.bgTimer); S.bgTimer=setTimeout(()=>render({bg:true}),1600); return; } // never re-render under a moving thumb
   S.dirty=false;
   const keep=opts.bg||opts.keepScroll; const y=window.scrollY||window.pageYOffset||0;
+  if(S.draw){ const br=document.getElementById('bracket'); S.draw.keepLeft=br?br.scrollLeft:null; }
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.tab===S.tab));
   const v=document.getElementById('view');
   let html='';
@@ -533,12 +545,14 @@ function render(opts){
   if(D.lastErr&&D.lastOk) warn='<div class="banner">Live update failed. Showing data from '+fmtClock(D.lastOk)+'. <button class="btn ghost" data-act="retry">Retry</button></div>';
   else if(D.lastErr&&!D.lastOk) warn='<div class="banner err">No connection to BWF right now. Showing the last saved schedule from this phone. <button class="btn ghost" data-act="retry">Retry</button></div>';
   if(S.draw) html=viewDraw(ctx);
-  else if(S.tab==='me') html=viewMe(ctx); else if(S.tab==='players') html=viewPlayers(ctx); else if(S.tab==='countries') html=viewCountries(ctx); else html=viewVenues(ctx);
+  else if(S.tab==='me') html=viewMe(ctx); else if(S.tab==='players') html=viewPlayers(ctx); else if(S.tab==='countries') html=viewCountries(ctx); else if(S.tab==='draws') html=viewDraws(ctx); else html=viewVenues(ctx);
   v.innerHTML=warn+html+'<p class="foot">Times are local Cagliari time. Data comes live from the BWF tournament feed (extranet-lv.bwfbadminton.com), the same source as bwfbadminton.com. Estimated start times are a guess based on how far behind schedule each venue is running right now. Next-round matches appear once the previous round has been played. Nothing here is official; always check the venue boards.</p>';
-  if(keep){ window.scrollTo(0,y); }
+  if(S.draw){ const br=document.getElementById('bracket'); if(br&&keep&&S.draw.keepLeft!=null){ br.scrollLeft=S.draw.keepLeft; } }
+  if(keep){ window.scrollTo(0,y); if(S.draw) afterDrawRender(); }
   else {
     window.scrollTo(0,0);
-    const onChip=v.querySelector('.chip.day.on, .chip.rd.on'); if(onChip&&onChip.scrollIntoView){ try{ onChip.scrollIntoView({inline:'center',block:'nearest'}); }catch(e){} window.scrollTo(0,0); }
+    const onChip=v.querySelector('.chip.day.on'); if(onChip&&onChip.scrollIntoView){ try{ onChip.scrollIntoView({inline:'center',block:'nearest'}); }catch(e){} window.scrollTo(0,0); }
+    if(S.draw) afterDrawRender();
   }
   updHash();
   if(S.focusSearch){ const i=document.getElementById(S.focusSearch); if(i){ i.focus(); try{ i.setSelectionRange(i.value.length,i.value.length);}catch(e){} } S.focusSearch=null; }
@@ -592,11 +606,12 @@ function nextBanner(p, ctx){
   return '<div class="next">'+txt+'</div>';
 }
 
-function roadSections(p,ctx){
+function drawButtons(p){ // one button per event the player is in; opens the bracket with them highlighted
   const evs=[...(p.ev||[])]; if(!evs.length) return '';
-  ensureDraws(evs);
-  const parts=evs.map(ev=>roadSection(p,ev,ctx)).filter(Boolean);
-  return parts.length?'<h2>Road ahead</h2><div class="stack">'+parts.join('')+'</div>':'';
+  ensureDrawList();
+  if(!D.drawList) return '';
+  const bs=evs.map(ev=>{ const dr=drawFor(ev); return dr?'<button class="btn" data-act="draw" data-id="'+dr.id+'" data-pid="'+p.i+'" data-from="player">'+esc(ev)+' draw ›</button>':''; }).join('');
+  return bs?'<div class="row" style="margin-top:10px;flex-wrap:wrap">'+bs+'</div>':'';
 }
 function viewMe(ctx){
   let html='';
@@ -609,7 +624,7 @@ function viewMe(ctx){
   const p=playerFromIndex(S.me);
   html+='<div class="card">'+playerHead(p)+'<div class="row" style="margin-top:10px;flex-wrap:wrap"><button class="btn" data-act="share" data-id="'+p.i+'" data-name="'+esc(p.n)+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg>Share</button><button class="btn" data-act="notme">Not me / change</button></div></div>';
   const nb=nextBanner(p,ctx); if(nb) html+='<div style="margin-top:10px">'+nb+'</div>';
-  html+=roadSections(p,ctx);
+  html+=drawButtons(p);
   html+=playerMatches(p,ctx);
   html+=followSection(ctx);
   return html;
@@ -626,7 +641,7 @@ function viewPlayers(ctx){
     let html='<div class="row" style="margin-bottom:8px"><button class="btn ghost" data-act="back">‹ Search</button></div>';
     html+='<div class="card">'+playerHead(p)+'<div class="row" style="margin-top:10px;flex-wrap:wrap"><button class="btn'+(fol?' primary':'')+'" data-act="follow" data-id="'+p.i+'">'+(fol?'★ Following':'☆ Follow')+'</button><button class="btn" data-act="share" data-id="'+p.i+'" data-name="'+esc(p.n)+'">Share</button>'+(S.me&&S.me.i===p.i?'':'<button class="btn ghost" data-act="setme" data-id="'+p.i+'">This is me</button>')+'</div></div>';
     const nb=nextBanner(p,ctx); if(nb) html+='<div style="margin-top:10px">'+nb+'</div>';
-    html+=roadSections(p,ctx);
+    html+=drawButtons(p);
     html+=playerMatches(p,ctx);
     return html;
   }
@@ -665,6 +680,7 @@ function viewCountries(ctx){
 function dayChips(days, sel, act, ctx){
   return '<div class="chips">'+days.map(d=>{ const l=dayLabel(d,'short'); const has=D.days[d]&&D.days[d].m.length; return '<button class="chip day'+(sel===d?' on':'')+(has?'':' nodata')+'" data-act="'+act+'" data-d="'+d+'"><b>'+l.dn+'</b><span>'+(d===ctx.td?'Today':l.wd)+'</span></button>'; }).join('')+'</div>';
 }
+function sideFlags(t){ const cs=[...new Set(t.map(p=>p.c).filter(Boolean))]; return cs.map(c=>'<span class="bflag" style="display:inline-block;width:auto;margin-right:3px">'+flag(c)+'</span>').join(''); }
 function viewVenues(ctx){
   const td=ctx.td; const day=D.days[td]; const ms=day?day.m:[];
   let html='<h2>Venues · today</h2><p class="small muted" style="margin:-4px 0 10px">Delay is estimated from the matches on court right now: their scheduled time versus when they actually started. The feed often shows a match as live a few minutes before it shows which court, so a court without a number is not necessarily free.</p><div class="stack">';
@@ -680,7 +696,7 @@ function viewVenues(ctx){
     html+='<div class="courtrow">'+cfg.courts.map(c=>{ const m=on.find(x=>x.court===c); const k=m?(m.st==='O'?'fin':m.st==='W'?'warm':'live'):'unk'; return '<span class="cpill '+k+'" title="Court '+c+'">'+c+'</span>'; }).join('')+(on.some(m=>!m.court)?'<span class="tiny muted" style="margin-left:6px">+'+on.filter(m=>!m.court).length+' on court, court number not in the feed yet</span>':'')+'</div>';
     html+='<div class="ev" style="margin:10px 0 6px">On court now · '+on.length+'</div>';
     if(!on.length) html+='<div class="small muted">Nothing on court in the feed right now.</div>';
-    else html+='<div class="onlist">'+on.map(m=>{ const st=m.st==='W'?'<span class="pill warm">Warm-up</span>':m.st==='O'?'<span class="pill done">Just finished</span>':'<span class="pill live"><span class="livedot"></span>Live'+(m.du?' · '+m.du+"'":'')+'</span>'; const sc=m.sc.length?'<span class="sc num">'+m.sc.map(x=>x[0]+'-'+x[1]).join('  ')+'</span>':''; return '<div class="onrow"><span class="cbadge'+(m.court?'':' q')+'">'+(m.court?'C'+m.court:'C?')+'</span><div class="grow"><div class="row" style="gap:6px"><span class="ev">'+esc(m.ev)+' · '+esc(m.rd)+'</span>'+st+'</div><div class="small">'+esc(m.a.map(p=>p.n.split(' ').pop()).join('/'))+' <span class="muted">v</span> '+esc(m.b.map(p=>p.n.split(' ').pop()).join('/'))+' '+sc+'</div><div class="tiny muted">scheduled '+esc(m.tm)+' · match '+esc(m.n)+'</div></div></div>'; }).join('')+'</div>';
+    else html+='<div class="onlist">'+on.map(m=>{ const st=m.st==='W'?'<span class="pill warm">Warm-up</span>':m.st==='O'?'<span class="pill done">Just finished</span>':'<span class="pill live"><span class="livedot"></span>Live'+(m.du?' · '+m.du+"'":'')+'</span>'; const sc=m.sc.length?'<span class="sc num">'+m.sc.map(x=>x[0]+'-'+x[1]).join('  ')+'</span>':''; return '<div class="onrow"><span class="cbadge'+(m.court?'':' q')+'">'+(m.court?'C'+m.court:'C?')+'</span><div class="grow"><div class="row" style="gap:6px"><span class="ev">'+esc(m.ev)+' · '+esc(m.rd)+'</span>'+st+'</div><div class="small">'+sideFlags(m.a)+esc(m.a.map(p=>p.n.split(' ').pop()).join('/'))+' <span class="muted">v</span> '+sideFlags(m.b)+esc(m.b.map(p=>p.n.split(' ').pop()).join('/'))+' '+sc+'</div><div class="tiny muted">scheduled '+esc(m.tm)+' · match '+esc(m.n)+'</div></div></div>'; }).join('')+'</div>';
     const upcoming=vm.filter(m=>m.st==='N').slice(0,4);
     if(upcoming.length){ html+='<div style="margin-top:10px"><div class="ev" style="margin-bottom:6px">Next up in '+esc(cfg.name)+'</div><div class="stack">'+upcoming.map(m=>matchCard(m,ctx,{foot:false})).join('')+'</div></div>'; }
     html+='</section>';
@@ -693,12 +709,17 @@ function viewVenues(ctx){
 
 /* ---------- draws (brackets) ---------- */
 const DRAW_API='https://extranet-lv.bwfbadminton.com/api/';
+const SECTION=16; // first-round slots per swipeable section
 async function loadDrawList(){
   if(D.drawList) return D.drawList;
   const c=store.get('drawlist'); if(c&&c.at&&Date.now()-c.at<6*3600000&&c.list){ D.drawList=c.list; return c.list; }
   const r=await fetch(DRAW_API+'vue-tournament-draws?tmtTab=draw&tmtId=5871',{cache:'default'}); if(!r.ok) throw new Error('HTTP '+r.status);
-  const j=await r.json(); const list=(j.results||[]).map(d=>({id:String(d.value),name:d.text,size:d.size,slug:d.slug}));
+  const j=await r.json(); const list=(j.results||[]).map(d=>({id:String(d.value),name:d.text,size:d.size,slug:d.slug,type:d.type}));
   D.drawList=list; store.set('drawlist',{at:Date.now(),list}); return list;
+}
+function ensureDrawList(){ // loads the draw list once, re-renders when it lands
+  if(D.drawList||D.drawListBusy) return;
+  D.drawListBusy=loadDrawList().then(()=>{ D.drawListBusy=null; render({bg:true}); }).catch(()=>{ D.drawListBusy=null; });
 }
 function drawFor(eventName){ return (D.drawList||[]).find(d=>d.name===eventName)||null; }
 function compactDraw(res){
@@ -714,7 +735,8 @@ function compactDraw(res){
   }
   out.sort((x,y)=>x.c-y.c||x.r-y.r);
   const cols=out.length?Math.max(...out.map(m=>m.c))+1:0;
-  return {m:out, cols, rounds};
+  const n0=out.filter(m=>m.c===0).length;
+  return {m:out, cols, rounds, n0};
 }
 async function loadDraw(id, force){
   const cur=D.draws[id];
@@ -732,135 +754,124 @@ async function loadDraw(id, force){
   return D.drawBusy[id];
 }
 function drawMatch(d,c,r){ return d.m.find(m=>m.c===c&&m.r===r); }
-function teamKnown(m,side){ const t=side?m.b:m.a; return t.length>0||(side?m.bb:m.ab); }
-function teamIsBye(m,side){ return side?m.bb:m.ab; }
-// teams still able to reach match (c,r), following unfinished branches down to the first round
-function aliveTeams(d,c,r){
-  const m=drawMatch(d,c,r); if(!m) return [];
-  if(m.w===1||m.w===2){ const t=m.w===1?m.a:m.b; return t.length?[{p:t,seed:m.w===1?m.sa:m.sb}]:[]; }
-  let out=[];
-  for(const side of [0,1]){
-    if(teamKnown(m,side)){ if(!teamIsBye(m,side)){ const t=side?m.b:m.a; out.push({p:t,seed:side?m.sb:m.sa}); } }
-    else if(c>0){ out=out.concat(aliveTeams(d,c-1,2*r+side)); }
-  }
-  return out;
-}
 function playerInTeam(t,pid){ return t.some(p=>p.i===pid); }
-// where a player stands in a draw: the highest-round match that contains them
-function playerPosition(d,pid){
-  let best=null;
-  for(const m of d.m){ if(playerInTeam(m.a,pid)||playerInTeam(m.b,pid)){ if(!best||m.c>best.c) best=m; } }
-  if(!best) return null;
-  const side=playerInTeam(best.b,pid)?1:0;
-  const won=best.w===side+1, lost=(best.w===1||best.w===2)&&!won;
+function playerMatchesInDraw(d,pid){ return d.m.filter(m=>playerInTeam(m.a,pid)||playerInTeam(m.b,pid)); }
+function playerPosition(d,pid){ // the highest-round match containing the player
+  let best=null; for(const m of playerMatchesInDraw(d,pid)){ if(!best||m.c>best.c) best=m; }
+  if(!best) return null; const side=playerInTeam(best.b,pid)?1:0; const won=best.w===side+1, lost=(best.w===1||best.w===2)&&!won;
   return {m:best, side, won, lost};
 }
-// the road ahead: for every later round, the teams that can still be the opponent
-function roadAhead(d,pid){
-  const pos=playerPosition(d,pid); if(!pos) return null;
-  let c=pos.m.c, r=pos.m.r;
-  const steps=[];
-  if(pos.lost) return {pos, steps, out:true};
-  // current match (if it is still to be played and the opponent side is known/unknown)
-  if(!pos.won){
-    const opp=pos.side?0:1;
-    const oppTeams=teamKnown(pos.m,opp)?(teamIsBye(pos.m,opp)?[]:[{p:opp?pos.m.b:pos.m.a,seed:opp?pos.m.sb:pos.m.sa}]):(c>0?aliveTeams(d,c-1,2*r+opp):[]);
-    steps.push({c, rd:d.rounds[c]||pos.m.rd, m:pos.m, teams:oppTeams, bye:teamKnown(pos.m,opp)&&teamIsBye(pos.m,opp), now:true});
-  }
-  let pc=c, pr=r;
-  while(pc+1<d.cols){
-    const nc=pc+1, nr=Math.floor(pr/2); const nm=drawMatch(d,nc,nr); if(!nm) break;
-    const sib=(pr%2===0)?1:0; // the other child of the next match
-    const teams=aliveTeams(d,pc,2*nr+sib);
-    steps.push({c:nc, rd:d.rounds[nc]||nm.rd, m:nm, teams});
-    pc=nc; pr=nr;
-  }
-  return {pos, steps, out:false};
+// sections: a big draw is split into swipeable parts of SECTION first-round slots each, plus a "Finals" part where they meet
+function drawParts(d){
+  if(!d||!d.cols) return [];
+  if(d.n0<=SECTION) return [{key:'all', label:'Whole draw', c0:0, c1:d.cols-1, r0:0, n:d.n0}];
+  const depth=Math.log2(SECTION); // columns inside a part: c0 .. c0+depth
+  const parts=[]; const nParts=Math.ceil(d.n0/SECTION);
+  for(let i=0;i<nParts;i++) parts.push({key:'p'+i, label:'Part '+(i+1), c0:0, c1:Math.min(depth,d.cols-1), r0:i*SECTION, n:SECTION});
+  if(d.cols-1>depth) parts.push({key:'finals', label:'Finals', c0:depth, c1:d.cols-1, r0:0, n:d.n0/Math.pow(2,depth)});
+  return parts;
 }
-function teamLabel(t, withFlag){
-  const names=t.p.map(p=>p.n.split(' ').pop()).join('/');
-  const cc=t.p[0]?t.p[0].c:'';
-  return (withFlag!==false?'<span class="flag" style="width:auto;font-size:14px">'+flag(cc)+'</span> ':'')+esc(names)+(t.seed?' <span class="seed">['+esc(t.seed)+']</span>':'');
+function partOfMatch(d,parts,m){ // which part shows match m: its section, or Finals for rounds past the sections
+  if(!m||parts.length===1) return parts[0];
+  const depth=Math.log2(SECTION);
+  const finals=parts[parts.length-1].key==='finals'?parts[parts.length-1]:null;
+  if(finals&&m.c>depth) return finals;
+  const firstRow=m.r*Math.pow(2,m.c);
+  return parts[Math.min(Math.floor(firstRow/SECTION), parts.length-(finals?2:1))]||parts[0];
 }
-function toCard(dm, ev){ // draw match -> card shape, preferring the live day-match record when it exists
-  const live=dm.n&&D.byCode.get(dm.n); if(live) return live;
-  return {i:'d'+dm.n, n:dm.n, d:dm.t.slice(0,10), t:dm.t, tm:dm.t.slice(11,16)||'', ev, rd:dm.rd, court:0, v:'', loc:'', st:dm.st, stv:'', ss:dm.ss, du:null, w:dm.w, sc:dm.sc, a:dm.a, b:dm.b, sa:dm.sa, sb:dm.sb, bye:dm.ab||dm.bb, tbd:!(dm.a.length||dm.ab)||!(dm.b.length||dm.bb)};
-}
-function roadSection(p, ev, ctx){
-  const dr=drawFor(ev);
-  if(!D.drawList) return '<div class="card road"><div class="rhead"><b>'+esc(ev)+'</b> <span class="muted small">loading draw list…</span></div></div>';
-  if(!dr) return '';
-  const d=D.draws[dr.id];
-  if(!d){ return '<div class="card road" data-draw="'+dr.id+'"><div class="rhead"><b>'+esc(ev)+' draw</b> <span class="muted small">loading…</span></div><div class="skel" style="height:40px;margin-top:8px"></div></div>'; }
-  const road=roadAhead(d,p.i);
-  let html='<div class="card road"><div class="rhead row"><b class="grow">'+esc(ev)+' · road ahead</b><button class="btn ghost" data-act="draw" data-id="'+dr.id+'" data-pid="'+p.i+'">Full draw ›</button></div>';
-  if(!road){ html+='<div class="muted small">Not found in this draw.</div></div>'; return html; }
-  if(road.out){ const m=road.pos.m; const opp=road.pos.side?m.a:m.b; html+='<div class="small">Out in '+esc(m.rd)+(opp.length?' · lost to '+esc(opp.map(x=>x.n.split(' ').pop()).join('/')):'')+(m.sc.length?' · '+m.sc.map(x=>road.pos.side?x[1]+'-'+x[0]:x[0]+'-'+x[1]).join(' '):'')+'.</div></div>'; return html; }
-  html+='<ol class="road-steps">';
-  for(const st of road.steps){
-    const dayM=st.m.n&&D.byCode.get(st.m.n);
-    const when=dayM?( (dayM.d===ctx.td?'Today':dayLabel(dayM.d))+' '+dayM.tm+(dayM.v?' · <span class="vchip v-'+dayM.v+'"><span class="lt">'+dayM.v+'</span>'+(dayM.court?'<span>C'+dayM.court+'</span>':'')+'</span>':'') ):(st.m.t?dayLabel(st.m.t.slice(0,10))+' '+st.m.t.slice(11,16):'not scheduled yet');
-    let who;
-    if(st.bye) who='<span class="muted">Bye, straight through</span>';
-    else if(!st.teams.length) who='<span class="muted">to be decided</span>';
-    else if(st.teams.length===1) who=teamLabel(st.teams[0]);
-    else { const shown=st.teams.slice(0,6); who='<span class="muted">one of '+st.teams.length+':</span> '+shown.map(t=>teamLabel(t)).join('<span class="sep"> · </span>')+(st.teams.length>6?' <span class="muted">+'+(st.teams.length-6)+' more</span>':''); }
-    html+='<li'+(st.now?' class="now"':'')+'><div class="rd">'+esc(st.rd)+'</div><div class="grow"><div class="who">'+who+'</div><div class="tiny muted">'+when+'</div></div></li>';
-  }
-  html+='</ol></div>';
-  return html;
-}
-function ensureDrawList(){ // loads the draw list once, re-renders when it lands
-  if(D.drawList||D.drawListBusy) return;
-  D.drawListBusy=loadDrawList().then(()=>{ D.drawListBusy=null; render({bg:true}); }).catch(()=>{ D.drawListBusy=null; });
-}
-function ensureDraws(evs){ // kick off loads for stale or missing draws; re-render when they land
-  if(!D.drawList){ ensureDrawList(); return; }
-  for(const e of evs){
-    const dr=drawFor(e); if(!dr) continue;
-    const cur=D.draws[dr.id]; if(cur&&Date.now()-cur.at<10*60000) continue;
-    if(D.drawBusy[dr.id]) continue;
-    loadDraw(dr.id).then(()=>render({bg:true})).catch(()=>{});
-  }
+function bracketNames(t){ return t.map(p=>p.n.split(' ').pop()).join('/'); }
+function bbox(m, d, ctx, pid){ // one match box in the bracket
+  const live=m.n&&D.byCode.get(m.n); // live day record when the match is scheduled
+  const st=live?live.st:m.st, sc=live?live.sc:m.sc, w=live?live.w:m.w, du=live?live.du:null;
+  const a=live?live.a:m.a, b=live?live.b:m.b, sa=live?live.sa:m.sa, sb=live?live.sb:m.sb;
+  const bye=m.ab||m.bb; const tbd=!(a.length||m.ab)||!(b.length||m.bb);
+  const mine=pid&&(playerInTeam(a,pid)||playerInTeam(b,pid));
+  let meta='';
+  if(bye) meta='Bye';
+  else if(st==='P') meta='<span class="lv"><span class="livedot"></span>Live'+(du?' '+du+"'":'')+'</span>';
+  else if(st==='W') meta='<span class="wu">Warm-up</span>';
+  else if(st==='O'||st==='F') meta=(live&&live.ss&&live.ss!=='Normal')?live.ss:'Finished';
+  else if(live) meta=(live.d===ctx.td?'Today':dayLabel(live.d).slice(0,6))+' '+live.tm+(live.v?' · '+live.v+(live.court?' C'+live.court:''):'');
+  else if(m.t) meta=dayLabel(m.t.slice(0,10)).slice(0,6)+' '+m.t.slice(11,16);
+  else meta=tbd?'':'Not scheduled';
+  const row=(t,isBye,seed,winner,loser,sets)=>{
+    const cc=t[0]?t[0].c:'';
+    const me=pid&&playerInTeam(t,pid);
+    const nm=isBye?'<span class="muted">Bye</span>':(t.length?esc(bracketNames(t)):'<span class="muted">TBD</span>');
+    return '<div class="bteam'+(winner?' win':'')+(loser?' lose':'')+(me?' me':'')+'">'+(t.length?'<span class="bflag">'+flag(cc)+'</span>':'<span class="bflag"></span>')+'<span class="bn">'+nm+(seed?' <span class="seed">['+esc(seed)+']</span>':'')+'</span><span class="bs">'+sets.map(x=>'<span>'+x+'</span>').join('')+'</span></div>';
+  };
+  const s1=sc.map(x=>x[0]), s2=sc.map(x=>x[1]);
+  return '<div class="bbox'+(mine?' mine':'')+(bye?' bye':'')+(tbd&&!bye?' tbd':'')+(st==='P'?' live':'')+'" data-code="'+esc(m.n)+'"><div class="bmeta"><span>'+meta+'</span><span class="mn">'+(bye||tbd?'':esc(m.n))+'</span></div>'+row(a,m.ab,sa,w===1,w===2,s1)+row(b,m.bb,sb,w===2,w===1,s2)+'</div>';
 }
 function viewDraw(ctx){
   ensureDrawList();
   const dr=(D.drawList||[]).find(x=>x.id===S.draw.id); const d=D.draws[S.draw.id];
-  let html='<div class="row" style="margin-bottom:8px"><button class="btn ghost" data-act="drawback">‹ Back</button><h2 class="grow" style="margin:0">'+esc(dr?dr.name:'Draw')+'</h2>'+(d?'<span class="tiny muted">draw of '+(dr&&dr.size?dr.size:(1<<d.cols))+'</span>':'')+'</div>';
+  const backLabel=S.draw.from==='player'?'‹ Player':'‹ Draws';
+  let html='<div class="row" style="margin-bottom:6px"><button class="btn ghost" data-act="drawback">'+backLabel+'</button><h2 class="grow" style="margin:0">'+esc(dr?dr.name:'Draw')+'</h2>'+(S.draw.pid&&d&&playerMatchesInDraw(d,S.draw.pid).length?'<button class="btn" data-act="jumpme">Find me</button>':'')+'</div>';
   if(!d){
     if(S.drawErr) html+='<div class="banner err">Could not load the draw ('+esc(S.drawErr)+'). <button class="btn ghost" data-act="drawretry">Retry</button></div>';
     else { html+='<div class="stack"><div class="skel"></div><div class="skel"></div></div>'; if(!D.drawBusy[S.draw.id]) loadDraw(S.draw.id).then(()=>render({bg:true})).catch(e=>{ S.drawErr=String(e&&e.message||e); render({bg:true}); }); }
     return html;
   }
+  if(!d.cols){ html+='<div class="card empty">This event is played in groups, not a knock-out draw. Group play is not shown here yet.</div>'; return html; }
+  const parts=drawParts(d);
   const pid=S.draw.pid; const pos=pid?playerPosition(d,pid):null;
-  const cols=[]; for(let c=0;c<d.cols;c++){ const ms=d.m.filter(m=>m.c===c); const real=ms.filter(m=>!(m.ab||m.bb)).length; cols.push({c, rd:d.rounds[c]||('R'+(1<<(d.cols-c))), n:ms.length, real}); }
-  if(S.draw.col==null){ S.draw.col=pos?Math.min(pos.m.c+(pos.won?1:0),d.cols-1):(cols.find(x=>d.m.some(m=>m.c===x.c&&m.st!=='F'&&!(m.ab||m.bb)))||cols[0]).c; }
-  html+='<div class="chips">'+cols.map(x=>'<button class="chip rd'+(S.draw.col===x.c?' on':'')+'" data-act="drawcol" data-c="'+x.c+'">'+esc(x.rd)+'<span class="n">'+x.real+'</span></button>').join('')+'</div>';
-  const ms=d.m.filter(m=>m.c===S.draw.col);
-  const hl=pid?new Set([pid]):null;
-  if(pos&&pid){ const road=roadAhead(d,pid); if(road&&!road.out){ const step=road.steps.find(x=>x.c===S.draw.col); if(step&&!step.now&&step.teams.length){ html+='<div class="next small"><b>Possible opponent'+(step.teams.length>1?'s':'')+' in '+esc(step.rd)+':</b> '+step.teams.slice(0,10).map(t=>teamLabel(t)).join('<span class="sep"> · </span>')+(step.teams.length>10?' +'+(step.teams.length-10)+' more':'')+'</div>'; } } }
-  html+='<div class="stack" style="margin-top:8px">';
-  const byes=ms.filter(m=>m.ab||m.bb);
-  const half=Math.ceil(ms.length/2); let bottomShown=false;
-  if(ms.length>=4) html+='<div class="ev" style="margin:6px 0 -4px">Top half</div>';
-  for(const m of ms){
-    if(m.ab||m.bb){ continue; }
-    if(!bottomShown&&ms.length>=4&&m.r>=half){ html+='<div class="ev" style="margin:6px 0 -4px">Bottom half</div>'; bottomShown=true; }
-    const card=toCard(m, dr?dr.name:'');
-    if(card.tbd){ html+=tbdCard(m,d); continue; }
-    html+=matchCard(card,ctx,{hl, markMine:true, showDate:true});
+  if(!S.draw.part||!parts.some(p=>p.key===S.draw.part)){
+    const pm=pos?pos.m:null; const part=pm?partOfMatch(d,parts,pm):(parts.find(p=>p.key!=='finals')||parts[0]);
+    S.draw.part=part.key; S.draw.pending=pm?pm.n:null;
   }
-  if(byes.length){ html+='<details class="byes"><summary class="small muted">'+byes.length+' bye'+(byes.length===1?'':'s')+' in this round</summary><div class="small" style="padding:6px 2px">'+byes.map(m=>{ const t=m.ab?m.b:m.a; return t.length?'<div>'+esc(t.map(p=>p.n).join(' / '))+(m.ab?(m.sb?' ['+esc(m.sb)+']':''):(m.sa?' ['+esc(m.sa)+']':''))+'</div>':''; }).join('')+'</div></details>'; }
+  const part=parts.find(p=>p.key===S.draw.part)||parts[0];
+  if(parts.length>1){
+    html+='<div class="chips" style="padding-bottom:6px">'+parts.map(p=>{ const has=pos&&partOfMatch(d,parts,pos.m).key===p.key; return '<button class="chip'+(p.key===part.key?' on':'')+'" data-act="drawpart" data-part="'+p.key+'">'+esc(p.label)+(has?' <span class="n">you</span>':'')+'</button>'; }).join('')+'</div>';
+  }
+  // round chips for the columns in this part
+  const cols=[]; for(let c=part.c0;c<=part.c1;c++) cols.push({c, rd:d.rounds[c]||('R'+(1<<(d.cols-c)))});
+  html+='<div class="rchips"><div class="chips" id="rchips">'+cols.map((x,i)=>'<button class="chip rd'+(i===0?' on':'')+'" data-act="drawcol" data-i="'+i+'">'+esc(x.rd)+'</button>').join('')+'<span class="tiny muted" style="align-self:center;white-space:nowrap;padding-right:8px">swipe →</span></div></div>';
+  // the tree: one column per round, equal total height so the connectors line up
+  const slotH=part.key==='finals'?150:82; const H=part.n*slotH;
+  html+='<div class="bracket" id="bracket">';
+  cols.forEach((x,i)=>{
+    const span=Math.pow(2,x.c-part.c0); // first-round slots per match in this column
+    const count=part.n/span; const r0=part.r0/span;
+    html+='<div class="bcol'+(i===0?' first':'')+'"><div class="bslots" style="height:'+H+'px">';
+    for(let k=0;k<count;k++){ const m=drawMatch(d,x.c,r0+k); html+='<div class="bslot">'+(m?bbox(m,d,ctx,pid):'<div class="bbox tbd"><div class="bmeta"></div><div class="bteam"><span class="bflag"></span><span class="bn muted">TBD</span></div><div class="bteam"><span class="bflag"></span><span class="bn muted">TBD</span></div></div>')+'</div>'; }
+    html+='</div></div>';
+  });
   html+='</div>';
+  html+='<p class="tiny muted" style="margin-top:8px">Swipe the bracket sideways to move through the rounds; lines show which matches feed the next one. '+(parts.length>1?'Big draws are split into parts of '+SECTION+' first-round places; the Finals part shows where the parts meet.':'')+'</p>';
   return html;
 }
-function tbdCard(m,d){ // a match whose players are not decided yet: show who can still get there
-  const sides=[0,1].map(side=>{ if(teamKnown(m,side)){ const t=side?m.b:m.a; return t.length?[{p:t,seed:side?m.sb:m.sa}]:[]; } return m.c>0?aliveTeams(d,m.c-1,2*m.r+side):[]; });
-  const pid=S.draw&&S.draw.pid;
-  const lab=ts=>ts.length?ts.slice(0,4).map(t=>(pid&&t.p.some(x=>x.i===pid))?'<span class="me">'+teamLabel(t)+'</span>':teamLabel(t)).join('<span class="sep"> · </span>')+(ts.length>4?' <span class="muted">+'+(ts.length-4)+'</span>':''):'<span class="muted">tbd</span>';
-  return '<article class="match tbd"><div class="when"><span class="t num">'+(m.t?esc(m.t.slice(11,16)):'—')+'</span>'+(m.t?'<span class="tiny muted">'+esc(dayLabel(m.t.slice(0,10)))+'</span>':'')+'</div><div class="grow"><div class="mhead"><span class="ev">'+esc(m.rd)+' · match '+esc(m.n)+'</span><span class="pill sched">Not decided</span></div><div class="small" style="padding:3px 0">'+lab(sides[0])+'</div><div class="tiny muted" style="padding-left:2px">v</div><div class="small" style="padding:3px 0">'+lab(sides[1])+'</div></div></article>';
+function afterDrawRender(){ // wire up swipe tracking and initial position; called after the view is in the DOM
+  const br=document.getElementById('bracket'); if(!br) return;
+  const chips=document.getElementById('rchips');
+  const colW=()=>{ const c=br.querySelector('.bcol'); return c?c.offsetWidth:1; };
+  const setActive=()=>{ const i=Math.round(br.scrollLeft/colW()); if(chips){ [...chips.querySelectorAll('.chip.rd')].forEach((ch,k)=>ch.classList.toggle('on',k===i)); } };
+  br.addEventListener('scroll',()=>{ if(br.__raf) return; br.__raf=requestAnimationFrame(()=>{ br.__raf=null; setActive(); }); },{passive:true});
+  br.__toCol=(i,smooth)=>{ br.scrollTo({left:i*colW(), behavior:smooth?'smooth':'auto'}); };
+  if(S.draw&&S.draw.pending){ const code=S.draw.pending; S.draw.pending=null; const box=br.querySelector('.bbox[data-code="'+code+'"]'); if(box){ jumpToBox(br,box,false); } }
+  else if(S.draw&&S.draw.scrollCol!=null){ br.__toCol(S.draw.scrollCol,false); }
 }
-
+function jumpToBox(br,box,smooth){
+  const col=box.closest('.bcol'); const i=[...br.querySelectorAll('.bcol')].indexOf(col);
+  br.scrollTo({left:i*col.offsetWidth, behavior:smooth?'smooth':'auto'});
+  const y=box.getBoundingClientRect().top+window.scrollY-(window.innerHeight/2-60);
+  window.scrollTo({top:Math.max(0,y), behavior:smooth?'smooth':'auto'});
+}
+function viewDraws(ctx){ // the Draws tab: pick an event
+  ensureDrawList();
+  let html='<h2>Draws</h2>';
+  if(!D.drawList){ html+='<div class="stack"><div class="skel"></div></div>'; return html; }
+  const me=S.me?playerFromIndex(S.me):null;
+  if(me&&me.ev&&me.ev.size){ const bs=[...me.ev].map(ev=>{ const dr=drawFor(ev); return dr?'<button class="btn primary" data-act="draw" data-id="'+dr.id+'" data-pid="'+me.i+'" data-from="list">'+esc(ev)+'</button>':''; }).join(''); if(bs) html+='<div class="card"><div class="ev" style="margin-bottom:8px">Your events</div><div class="row" style="flex-wrap:wrap">'+bs+'</div></div>'; }
+  const groups=[['MS',"Men's singles"],['WS',"Women's singles"],['MD',"Men's doubles"],['WD',"Women's doubles"],['XD','Mixed doubles']];
+  for(const [pre,label] of groups){
+    const ds=D.drawList.filter(x=>x.name.startsWith(pre+' ')).sort((a,b)=>(+a.name.slice(3))-(+b.name.slice(3)));
+    if(!ds.length) continue;
+    html+='<div class="ev" style="margin:14px 0 6px">'+label+'</div><div class="cgrid">'+ds.map(x=>'<button class="chip" data-act="draw" data-id="'+x.id+'" data-pid="'+(me?me.i:'')+'" data-from="list">'+esc(x.name.slice(3))+'<span class="n">'+(x.size||'')+'</span></button>').join('')+'</div>';
+  }
+  html+='<p class="small muted" style="margin-top:14px">Numbers are the draw size. Byes are shown in the first round.</p>';
+  return html;
+}
 /* ---------- hash / sharing ---------- */
 function updHash(){
   let h='';
@@ -868,6 +879,7 @@ function updHash(){
   else if(S.tab==='players'&&S.player) h='#p='+S.player.i;
   else if(S.tab==='countries'&&S.country) h='#c='+S.country;
   else if(S.tab==='venues') h='#venues';
+  else if(S.tab==='draws') h='#draws';
   else if(S.tab==='players') h='#players';
   else h='';
   try{ if(location.hash!==h) history.replaceState(null,'',location.pathname+location.search+h); }catch(e){}
@@ -876,9 +888,9 @@ function readHash(){
   const h=(location.hash||'').slice(1);
   if(!h) return;
   const m=/^p=(\d+)$/.exec(h); if(m){ S.tab='players'; S.pendingPlayer=m[1]; return; }
-  const dm=/^d=(\d+)(?:-(\d+))?$/.exec(h); if(dm){ S.draw={id:dm[1], pid:dm[2]||null, col:null}; return; }
+  const dm=/^d=(\d+)(?:-(\d+))?$/.exec(h); if(dm){ S.tab='draws'; S.draw={id:dm[1], pid:dm[2]||null, from:'list', part:null}; return; }
   const c=/^c=([A-Z]{3})$/.exec(h); if(c){ S.tab='countries'; S.country=c[1]; return; }
-  if(h==='venues') S.tab='venues'; else if(h==='players') S.tab='players'; else if(h==='me') S.tab='me';
+  if(h==='venues') S.tab='venues'; else if(h==='players') S.tab='players'; else if(h==='me') S.tab='me'; else if(h==='draws') S.tab='draws';
 }
 function shareUrl(id){ const base=(window.SHARE_BASE||(location.origin+location.pathname)); return base+'#p='+id; }
 async function share(id,name){
@@ -914,9 +926,11 @@ document.getElementById('view').addEventListener('click',e=>{
   else if(act==='back'){ S.player=null; S.focusSearch='q-players'; render(); }
   else if(act==='follow'){ const p=pick(); if(!p) return; if(isFollowed(p.i)) S.follow=S.follow.filter(x=>x.i!==p.i); else S.follow.push(p); store.set('follow',S.follow); render({keepScroll:true}); }
   else if(act==='share'){ share(id,b.dataset.name||''); }
-  else if(act==='draw'){ S.draw={id:b.dataset.id, pid:b.dataset.pid||null, col:null}; S.drawErr=null; render(); }
-  else if(act==='drawback'){ S.draw=null; render(); }
-  else if(act==='drawcol'){ if(S.draw){ S.draw.col=+b.dataset.c; render(); } }
+  else if(act==='draw'){ S.draw={id:b.dataset.id, pid:b.dataset.pid||null, from:b.dataset.from||'list', part:null}; S.drawErr=null; store.set('lastdraw',b.dataset.id); render(); }
+  else if(act==='drawback'){ const from=S.draw&&S.draw.from; S.draw=null; if(from==='list'){ S.tab='draws'; store.set('tab',S.tab); } render(); }
+  else if(act==='drawpart'){ if(S.draw){ S.draw.part=b.dataset.part; S.draw.scrollCol=0; S.draw.keepLeft=null; render(); } }
+  else if(act==='drawcol'){ const br=document.getElementById('bracket'); if(br&&br.__toCol) br.__toCol(+b.dataset.i,true); }
+  else if(act==='jumpme'){ const br=document.getElementById('bracket'); const d=S.draw&&D.draws[S.draw.id]; if(br&&d&&S.draw.pid){ const pos=playerPosition(d,S.draw.pid); if(pos){ const parts=drawParts(d); const part=partOfMatch(d,parts,pos.m); if(part.key!==S.draw.part){ S.draw.part=part.key; S.draw.pending=pos.m.n; render(); } else { const box=br.querySelector('.bbox[data-code="'+pos.m.n+'"]'); if(box) jumpToBox(br,box,true); } } } }
   else if(act==='drawretry'){ if(S.draw){ S.drawErr=null; loadDraw(S.draw.id,true).then(()=>render({bg:true})).catch(e=>{ S.drawErr=String(e&&e.message||e); render({bg:true}); }); render(); } }
   else if(act==='country'){ S.country=b.dataset.cc||null; store.set('country',S.country); render(); }
   else if(act==='cday'){ S.cday=b.dataset.d; S.cfilter='all'; render(); }
