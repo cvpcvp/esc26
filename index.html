@@ -168,6 +168,22 @@ h3{font:600 15px/1.2 "Barlow",system-ui,sans-serif;margin:0 0 6px}
 .next{background:var(--accent-soft);color:var(--accent-ink);border-radius:12px;padding:10px 12px;font-size:14px}
 .next b{font-weight:700}
 
+/* road ahead + draw */
+.road .rhead{margin-bottom:6px}
+.road-steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.road-steps li{display:grid;grid-template-columns:44px 1fr;gap:8px;padding:7px 0;border-top:1px solid var(--line);align-items:start}
+.road-steps li:first-child{border-top:0}
+.road-steps li.now .rd{color:var(--accent)}
+.road-steps .rd{font:700 14px/1.3 "Barlow Condensed",system-ui,sans-serif;letter-spacing:.4px;text-transform:uppercase;color:var(--ink2);padding-top:1px}
+.road-steps .who{font-size:14px;line-height:1.35}
+.road-steps .who .sep{color:var(--ink3)}
+.road-steps .seed{font-size:11px;color:var(--ink3);font-weight:600}
+.match.tbd{border-style:dashed;box-shadow:none;opacity:.85}
+.match.tbd .me{background:var(--hl);border-radius:4px;padding:0 3px}
+.match.tbd .seed{font-size:11px;color:var(--ink3);font-weight:600}
+.pill.sched{background:var(--surface2);color:var(--ink2)}
+.byes summary{cursor:pointer;padding:4px 2px}
+.chip.rd{padding:7px 11px}
 /* venues */
 .vcard{border-left:5px solid var(--line)}
 .vcard.v-A{border-left-color:var(--vA);background:var(--surface);color:var(--ink)}
@@ -296,7 +312,7 @@ function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;'
 function fixName(s){ return (s||'').split(' ').map(w=>{ if(w===w.toUpperCase()) return w; return w.replace(/([^\x00-\x7F])([A-Z])/g,(m,a,b)=>a+b.toLowerCase()); }).join(' '); }
 
 /* ---------- data ---------- */
-const D = { days:{}, players:new Map(), countries:new Map(), loading:0, lastOk:0, lastErr:null };
+const D = { days:{}, players:new Map(), countries:new Map(), loading:0, lastOk:0, lastErr:null, drawList:null, draws:{}, drawBusy:{}, byCode:new Map() };
 function compact(raw, date){
   const out=[];
   for(const m of raw){
@@ -317,18 +333,19 @@ function compact(raw, date){
   return out;
 }
 async function fetchDay(date){
-  const url=CFG.api+'?tournamentCode='+CFG.code+'&date='+date+'&order=2&court=0&_='+Math.floor(Date.now()/15000);
-  const r=await fetch(url,{cache:'no-store'});
+  const url=CFG.api+'?tournamentCode='+CFG.code+'&date='+date+'&order=2&court=0';
+  const r=await fetch(url,{cache:'default'});
   if(!r.ok) throw new Error('HTTP '+r.status);
   const j=await r.json();
   const arr=Array.isArray(j)?j:(j.results||j.matches||[]);
   return compact(arr,date);
 }
 function rebuildIndex(){
-  D.players=new Map(); D.countries=new Map();
+  D.players=new Map(); D.countries=new Map(); D.byCode=new Map();
   for(const date of CFG.days){
     const day=D.days[date]; if(!day) continue;
     for(const m of day.m){
+      if(m.n) D.byCode.set(m.n,m);
       for(const p of m.a.concat(m.b)){
         let e=D.players.get(p.i);
         if(!e){ e={i:p.i,n:p.n,c:p.c,ev:new Set(),k:norm(p.n)}; D.players.set(p.i,e); }
@@ -457,9 +474,9 @@ function matchCard(m, ctx, opt){
   const venue='<span class="vchip v-'+esc(m.v)+'"><span class="lt">'+(m.v||'?')+'</span>'+(m.court?'<span>C'+m.court+'</span>':'')+'</span>';
   const pill=st.label?'<span class="pill '+st.k+'">'+(live?'<span class="livedot"></span>':'')+esc(st.label)+(live&&m.du?' · '+m.du+"'":'')+'</span>':'';
   const mine=opt.hl&&(m.a.some(p=>opt.hl.has(p.i))||m.b.some(p=>opt.hl.has(p.i)));
-  const dateTag=opt.showDate?'<span class="tiny muted">'+dayLabel(m.d)+'</span>':'';
+  const dateTag=opt.showDate?'<span class="tiny muted">'+(m.d?dayLabel(m.d):'not scheduled')+'</span>':'';
   return '<article class="match'+(mine&&opt.markMine?' mine':'')+(done&&!opt.noFade?' past':'')+(m.bye?' bye':'')+'" data-id="'+m.i+'">'+
-    '<div class="when"><span class="t num">'+esc(m.tm)+'</span>'+est+venue+'</div>'+
+    '<div class="when"><span class="t num">'+esc(m.tm||'—')+'</span>'+est+venue+'</div>'+
     '<div class="grow"><div class="mhead">'+dateTag+'<span class="ev">'+esc(m.ev)+' · '+esc(m.rd)+'</span>'+pill+'</div>'+
     teamHtml(m.a,m.sa,m.w===1,m.w===2,showSets?s1:[],live,opt.hl)+
     teamHtml(m.b,m.sb,m.w===2,m.w===1,showSets?s2:[],live,opt.hl)+
@@ -484,12 +501,14 @@ function playerFromIndex(p){ const e=D.players.get(p.i); return e||{i:p.i,n:p.n,
 
 /* ---------- views ---------- */
 function render(opts){
+  opts=opts||{};
   const ae=document.activeElement;
-  if(opts&&opts.bg&&ae&&ae.tagName==='INPUT'&&ae.value){ S.dirty=true; return; } // do not wipe the user's typing on a background refresh
+  if(opts.bg&&ae&&ae.tagName==='INPUT'&&ae.value){ S.dirty=true; return; } // do not wipe the user's typing on a background refresh
+  if(opts.bg&&Date.now()-(S.lastScroll||0)<1500){ clearTimeout(S.bgTimer); S.bgTimer=setTimeout(()=>render({bg:true}),1600); return; } // never re-render under a moving thumb
   S.dirty=false;
+  const keep=opts.bg||opts.keepScroll; const y=window.scrollY||window.pageYOffset||0;
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.tab===S.tab));
   const v=document.getElementById('view');
-  const st=v.scrollTop;
   let html='';
   if(!publishedDays().length){
     if(D.loading) html='<div class="stack"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>';
@@ -501,10 +520,14 @@ function render(opts){
   let warn='';
   if(D.lastErr&&D.lastOk) warn='<div class="banner">Live update failed. Showing data from '+fmtClock(D.lastOk)+'. <button class="btn ghost" data-act="retry">Retry</button></div>';
   else if(D.lastErr&&!D.lastOk) warn='<div class="banner err">No connection to BWF right now. Showing the last saved schedule from this phone. <button class="btn ghost" data-act="retry">Retry</button></div>';
-  if(S.tab==='me') html=viewMe(ctx); else if(S.tab==='players') html=viewPlayers(ctx); else if(S.tab==='countries') html=viewCountries(ctx); else html=viewVenues(ctx);
+  if(S.draw) html=viewDraw(ctx);
+  else if(S.tab==='me') html=viewMe(ctx); else if(S.tab==='players') html=viewPlayers(ctx); else if(S.tab==='countries') html=viewCountries(ctx); else html=viewVenues(ctx);
   v.innerHTML=warn+html+'<p class="foot">Times are local Cagliari time. Data comes live from the BWF tournament feed (extranet-lv.bwfbadminton.com), the same source as bwfbadminton.com. Estimated start times are a guess based on how far behind schedule each venue is running right now. Next-round matches appear once the previous round has been played. Nothing here is official; always check the venue boards.</p>';
-  window.scrollTo(0,0);
-  const onChip=v.querySelector('.chip.day.on'); if(onChip&&onChip.scrollIntoView){ try{ onChip.scrollIntoView({inline:'center',block:'nearest'}); }catch(e){} window.scrollTo(0,0); }
+  if(keep){ window.scrollTo(0,y); }
+  else {
+    window.scrollTo(0,0);
+    const onChip=v.querySelector('.chip.day.on, .chip.rd.on'); if(onChip&&onChip.scrollIntoView){ try{ onChip.scrollIntoView({inline:'center',block:'nearest'}); }catch(e){} window.scrollTo(0,0); }
+  }
   updHash();
   if(S.focusSearch){ const i=document.getElementById(S.focusSearch); if(i){ i.focus(); try{ i.setSelectionRange(i.value.length,i.value.length);}catch(e){} } S.focusSearch=null; }
 }
@@ -557,6 +580,12 @@ function nextBanner(p, ctx){
   return '<div class="next">'+txt+'</div>';
 }
 
+function roadSections(p,ctx){
+  const evs=[...(p.ev||[])]; if(!evs.length) return '';
+  ensureDraws(evs);
+  const parts=evs.map(ev=>roadSection(p,ev,ctx)).filter(Boolean);
+  return parts.length?'<h2>Road ahead</h2><div class="stack">'+parts.join('')+'</div>':'';
+}
 function viewMe(ctx){
   let html='';
   if(!S.me){
@@ -568,6 +597,7 @@ function viewMe(ctx){
   const p=playerFromIndex(S.me);
   html+='<div class="card">'+playerHead(p)+'<div class="row" style="margin-top:10px;flex-wrap:wrap"><button class="btn" data-act="share" data-id="'+p.i+'" data-name="'+esc(p.n)+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg>Share</button><button class="btn" data-act="notme">Not me / change</button></div></div>';
   const nb=nextBanner(p,ctx); if(nb) html+='<div style="margin-top:10px">'+nb+'</div>';
+  html+=roadSections(p,ctx);
   html+=playerMatches(p,ctx);
   html+=followSection(ctx);
   return html;
@@ -584,6 +614,7 @@ function viewPlayers(ctx){
     let html='<div class="row" style="margin-bottom:8px"><button class="btn ghost" data-act="back">‹ Search</button></div>';
     html+='<div class="card">'+playerHead(p)+'<div class="row" style="margin-top:10px;flex-wrap:wrap"><button class="btn'+(fol?' primary':'')+'" data-act="follow" data-id="'+p.i+'">'+(fol?'★ Following':'☆ Follow')+'</button><button class="btn" data-act="share" data-id="'+p.i+'" data-name="'+esc(p.n)+'">Share</button>'+(S.me&&S.me.i===p.i?'':'<button class="btn ghost" data-act="setme" data-id="'+p.i+'">This is me</button>')+'</div></div>';
     const nb=nextBanner(p,ctx); if(nb) html+='<div style="margin-top:10px">'+nb+'</div>';
+    html+=roadSections(p,ctx);
     html+=playerMatches(p,ctx);
     return html;
   }
@@ -654,10 +685,182 @@ function viewVenues(ctx){
   return html;
 }
 
+
+/* ---------- draws (brackets) ---------- */
+const DRAW_API='https://extranet-lv.bwfbadminton.com/api/';
+async function loadDrawList(){
+  if(D.drawList) return D.drawList;
+  const c=store.get('drawlist'); if(c&&c.at&&Date.now()-c.at<6*3600000&&c.list){ D.drawList=c.list; return c.list; }
+  const r=await fetch(DRAW_API+'vue-tournament-draws?tmtTab=draw&tmtId=5871',{cache:'default'}); if(!r.ok) throw new Error('HTTP '+r.status);
+  const j=await r.json(); const list=(j.results||[]).map(d=>({id:String(d.value),name:d.text,size:d.size,slug:d.slug}));
+  D.drawList=list; store.set('drawlist',{at:Date.now(),list}); return list;
+}
+function drawFor(eventName){ return (D.drawList||[]).find(d=>d.name===eventName)||null; }
+function compactDraw(res){
+  const team=t=>(t&&t.players||[]).map(p=>({i:String(p.id), n:fixName(p.nameDisplay||''), c:p.countryCode||t.countryCode||''}));
+  const isBye=t=>!!(t&&(t.linkName==='Bye'||t.teamName==='Bye'));
+  const out=[]; const rounds={};
+  const R=res&&res.results||{};
+  for(const k in R){
+    const m=R[k]&&R[k].match; if(!m) continue;
+    const [c,r]=k.split('-').map(Number); if(isNaN(c)||isNaN(r)) continue;
+    rounds[c]=m.roundName||rounds[c]||'';
+    out.push({c,r,n:String(m.code||''),rd:m.roundName||'',t:(m.matchTime||'').slice(0,16),st:m.matchStatus||'N',w:+m.winner||0,a:team(m.team1),b:team(m.team2),ab:isBye(m.team1),bb:isBye(m.team2),sa:m.team1seed||'',sb:m.team2seed||'',sc:(m.score||[]).map(x=>[x.home,x.away]),ss:m.scoreStatusValue||'Normal'});
+  }
+  out.sort((x,y)=>x.c-y.c||x.r-y.r);
+  const cols=out.length?Math.max(...out.map(m=>m.c))+1:0;
+  return {m:out, cols, rounds};
+}
+async function loadDraw(id, force){
+  const cur=D.draws[id];
+  if(cur&&!force&&Date.now()-cur.at<10*60000) return cur;
+  if(!cur){ const c=store.get('draw:'+id); if(c&&c.m){ D.draws[id]=c; if(!force&&Date.now()-c.at<10*60000) return c; } }
+  if(D.drawBusy[id]) return D.drawBusy[id];
+  D.drawBusy[id]=(async()=>{
+    try{
+      const r=await fetch(DRAW_API+'vue-tournament-draw-data?tmtTab=draw&tmtId=5871&drawId='+id,{cache:'default'});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const j=await r.json(); const d=compactDraw(j); d.at=Date.now(); d.id=id;
+      D.draws[id]=d; store.set('draw:'+id,d); return d;
+    } finally { delete D.drawBusy[id]; }
+  })();
+  return D.drawBusy[id];
+}
+function drawMatch(d,c,r){ return d.m.find(m=>m.c===c&&m.r===r); }
+function teamKnown(m,side){ const t=side?m.b:m.a; return t.length>0||(side?m.bb:m.ab); }
+function teamIsBye(m,side){ return side?m.bb:m.ab; }
+// teams still able to reach match (c,r), following unfinished branches down to the first round
+function aliveTeams(d,c,r){
+  const m=drawMatch(d,c,r); if(!m) return [];
+  if(m.w===1||m.w===2){ const t=m.w===1?m.a:m.b; return t.length?[{p:t,seed:m.w===1?m.sa:m.sb}]:[]; }
+  let out=[];
+  for(const side of [0,1]){
+    if(teamKnown(m,side)){ if(!teamIsBye(m,side)){ const t=side?m.b:m.a; out.push({p:t,seed:side?m.sb:m.sa}); } }
+    else if(c>0){ out=out.concat(aliveTeams(d,c-1,2*r+side)); }
+  }
+  return out;
+}
+function playerInTeam(t,pid){ return t.some(p=>p.i===pid); }
+// where a player stands in a draw: the highest-round match that contains them
+function playerPosition(d,pid){
+  let best=null;
+  for(const m of d.m){ if(playerInTeam(m.a,pid)||playerInTeam(m.b,pid)){ if(!best||m.c>best.c) best=m; } }
+  if(!best) return null;
+  const side=playerInTeam(best.b,pid)?1:0;
+  const won=best.w===side+1, lost=(best.w===1||best.w===2)&&!won;
+  return {m:best, side, won, lost};
+}
+// the road ahead: for every later round, the teams that can still be the opponent
+function roadAhead(d,pid){
+  const pos=playerPosition(d,pid); if(!pos) return null;
+  let c=pos.m.c, r=pos.m.r;
+  const steps=[];
+  if(pos.lost) return {pos, steps, out:true};
+  // current match (if it is still to be played and the opponent side is known/unknown)
+  if(!pos.won){
+    const opp=pos.side?0:1;
+    const oppTeams=teamKnown(pos.m,opp)?(teamIsBye(pos.m,opp)?[]:[{p:opp?pos.m.b:pos.m.a,seed:opp?pos.m.sb:pos.m.sa}]):(c>0?aliveTeams(d,c-1,2*r+opp):[]);
+    steps.push({c, rd:d.rounds[c]||pos.m.rd, m:pos.m, teams:oppTeams, bye:teamKnown(pos.m,opp)&&teamIsBye(pos.m,opp), now:true});
+  }
+  let pc=c, pr=r;
+  while(pc+1<d.cols){
+    const nc=pc+1, nr=Math.floor(pr/2); const nm=drawMatch(d,nc,nr); if(!nm) break;
+    const sib=(pr%2===0)?1:0; // the other child of the next match
+    const teams=aliveTeams(d,pc,2*nr+sib);
+    steps.push({c:nc, rd:d.rounds[nc]||nm.rd, m:nm, teams});
+    pc=nc; pr=nr;
+  }
+  return {pos, steps, out:false};
+}
+function teamLabel(t, withFlag){
+  const names=t.p.map(p=>p.n.split(' ').pop()).join('/');
+  const cc=t.p[0]?t.p[0].c:'';
+  return (withFlag!==false?'<span class="flag" style="width:auto;font-size:14px">'+flag(cc)+'</span> ':'')+esc(names)+(t.seed?' <span class="seed">['+esc(t.seed)+']</span>':'');
+}
+function toCard(dm, ev){ // draw match -> card shape, preferring the live day-match record when it exists
+  const live=dm.n&&D.byCode.get(dm.n); if(live) return live;
+  return {i:'d'+dm.n, n:dm.n, d:dm.t.slice(0,10), t:dm.t, tm:dm.t.slice(11,16)||'', ev, rd:dm.rd, court:0, v:'', loc:'', st:dm.st, stv:'', ss:dm.ss, du:null, w:dm.w, sc:dm.sc, a:dm.a, b:dm.b, sa:dm.sa, sb:dm.sb, bye:dm.ab||dm.bb, tbd:!(dm.a.length||dm.ab)||!(dm.b.length||dm.bb)};
+}
+function roadSection(p, ev, ctx){
+  const dr=drawFor(ev);
+  if(!D.drawList) return '<div class="card road"><div class="rhead"><b>'+esc(ev)+'</b> <span class="muted small">loading draw list…</span></div></div>';
+  if(!dr) return '';
+  const d=D.draws[dr.id];
+  if(!d){ return '<div class="card road" data-draw="'+dr.id+'"><div class="rhead"><b>'+esc(ev)+' draw</b> <span class="muted small">loading…</span></div><div class="skel" style="height:40px;margin-top:8px"></div></div>'; }
+  const road=roadAhead(d,p.i);
+  let html='<div class="card road"><div class="rhead row"><b class="grow">'+esc(ev)+' · road ahead</b><button class="btn ghost" data-act="draw" data-id="'+dr.id+'" data-pid="'+p.i+'">Full draw ›</button></div>';
+  if(!road){ html+='<div class="muted small">Not found in this draw.</div></div>'; return html; }
+  if(road.out){ const m=road.pos.m; const opp=road.pos.side?m.a:m.b; html+='<div class="small">Out in '+esc(m.rd)+(opp.length?' · lost to '+esc(opp.map(x=>x.n.split(' ').pop()).join('/')):'')+(m.sc.length?' · '+m.sc.map(x=>road.pos.side?x[1]+'-'+x[0]:x[0]+'-'+x[1]).join(' '):'')+'.</div></div>'; return html; }
+  html+='<ol class="road-steps">';
+  for(const st of road.steps){
+    const dayM=st.m.n&&D.byCode.get(st.m.n);
+    const when=dayM?( (dayM.d===ctx.td?'Today':dayLabel(dayM.d))+' '+dayM.tm+(dayM.v?' · <span class="vchip v-'+dayM.v+'"><span class="lt">'+dayM.v+'</span>'+(dayM.court?'<span>C'+dayM.court+'</span>':'')+'</span>':'') ):(st.m.t?dayLabel(st.m.t.slice(0,10))+' '+st.m.t.slice(11,16):'not scheduled yet');
+    let who;
+    if(st.bye) who='<span class="muted">Bye, straight through</span>';
+    else if(!st.teams.length) who='<span class="muted">to be decided</span>';
+    else if(st.teams.length===1) who=teamLabel(st.teams[0]);
+    else { const shown=st.teams.slice(0,6); who='<span class="muted">one of '+st.teams.length+':</span> '+shown.map(t=>teamLabel(t)).join('<span class="sep"> · </span>')+(st.teams.length>6?' <span class="muted">+'+(st.teams.length-6)+' more</span>':''); }
+    html+='<li'+(st.now?' class="now"':'')+'><div class="rd">'+esc(st.rd)+'</div><div class="grow"><div class="who">'+who+'</div><div class="tiny muted">'+when+'</div></div></li>';
+  }
+  html+='</ol></div>';
+  return html;
+}
+function ensureDrawList(){ // loads the draw list once, re-renders when it lands
+  if(D.drawList||D.drawListBusy) return;
+  D.drawListBusy=loadDrawList().then(()=>{ D.drawListBusy=null; render({bg:true}); }).catch(()=>{ D.drawListBusy=null; });
+}
+function ensureDraws(evs){ // kick off loads for stale or missing draws; re-render when they land
+  if(!D.drawList){ ensureDrawList(); return; }
+  for(const e of evs){
+    const dr=drawFor(e); if(!dr) continue;
+    const cur=D.draws[dr.id]; if(cur&&Date.now()-cur.at<10*60000) continue;
+    if(D.drawBusy[dr.id]) continue;
+    loadDraw(dr.id).then(()=>render({bg:true})).catch(()=>{});
+  }
+}
+function viewDraw(ctx){
+  ensureDrawList();
+  const dr=(D.drawList||[]).find(x=>x.id===S.draw.id); const d=D.draws[S.draw.id];
+  let html='<div class="row" style="margin-bottom:8px"><button class="btn ghost" data-act="drawback">‹ Back</button><h2 class="grow" style="margin:0">'+esc(dr?dr.name:'Draw')+'</h2>'+(d?'<span class="tiny muted">draw of '+(dr&&dr.size?dr.size:(1<<d.cols))+'</span>':'')+'</div>';
+  if(!d){
+    if(S.drawErr) html+='<div class="banner err">Could not load the draw ('+esc(S.drawErr)+'). <button class="btn ghost" data-act="drawretry">Retry</button></div>';
+    else { html+='<div class="stack"><div class="skel"></div><div class="skel"></div></div>'; if(!D.drawBusy[S.draw.id]) loadDraw(S.draw.id).then(()=>render({bg:true})).catch(e=>{ S.drawErr=String(e&&e.message||e); render({bg:true}); }); }
+    return html;
+  }
+  const pid=S.draw.pid; const pos=pid?playerPosition(d,pid):null;
+  const cols=[]; for(let c=0;c<d.cols;c++){ const ms=d.m.filter(m=>m.c===c); const real=ms.filter(m=>!(m.ab||m.bb)).length; cols.push({c, rd:d.rounds[c]||('R'+(1<<(d.cols-c))), n:ms.length, real}); }
+  if(S.draw.col==null){ S.draw.col=pos?Math.min(pos.m.c+(pos.won?1:0),d.cols-1):(cols.find(x=>d.m.some(m=>m.c===x.c&&m.st!=='F'&&!(m.ab||m.bb)))||cols[0]).c; }
+  html+='<div class="chips">'+cols.map(x=>'<button class="chip rd'+(S.draw.col===x.c?' on':'')+'" data-act="drawcol" data-c="'+x.c+'">'+esc(x.rd)+'<span class="n">'+x.real+'</span></button>').join('')+'</div>';
+  const ms=d.m.filter(m=>m.c===S.draw.col);
+  const hl=pid?new Set([pid]):null;
+  if(pos&&pid){ const road=roadAhead(d,pid); if(road&&!road.out){ const step=road.steps.find(x=>x.c===S.draw.col); if(step&&!step.now&&step.teams.length){ html+='<div class="next small"><b>Possible opponent'+(step.teams.length>1?'s':'')+' in '+esc(step.rd)+':</b> '+step.teams.slice(0,10).map(t=>teamLabel(t)).join('<span class="sep"> · </span>')+(step.teams.length>10?' +'+(step.teams.length-10)+' more':'')+'</div>'; } } }
+  html+='<div class="stack" style="margin-top:8px">';
+  const byes=ms.filter(m=>m.ab||m.bb);
+  const half=Math.ceil(ms.length/2); let bottomShown=false;
+  if(ms.length>=4) html+='<div class="ev" style="margin:6px 0 -4px">Top half</div>';
+  for(const m of ms){
+    if(m.ab||m.bb){ continue; }
+    if(!bottomShown&&ms.length>=4&&m.r>=half){ html+='<div class="ev" style="margin:6px 0 -4px">Bottom half</div>'; bottomShown=true; }
+    const card=toCard(m, dr?dr.name:'');
+    if(card.tbd){ html+=tbdCard(m,d); continue; }
+    html+=matchCard(card,ctx,{hl, markMine:true, showDate:true});
+  }
+  if(byes.length){ html+='<details class="byes"><summary class="small muted">'+byes.length+' bye'+(byes.length===1?'':'s')+' in this round</summary><div class="small" style="padding:6px 2px">'+byes.map(m=>{ const t=m.ab?m.b:m.a; return t.length?'<div>'+esc(t.map(p=>p.n).join(' / '))+(m.ab?(m.sb?' ['+esc(m.sb)+']':''):(m.sa?' ['+esc(m.sa)+']':''))+'</div>':''; }).join('')+'</div></details>'; }
+  html+='</div>';
+  return html;
+}
+function tbdCard(m,d){ // a match whose players are not decided yet: show who can still get there
+  const sides=[0,1].map(side=>{ if(teamKnown(m,side)){ const t=side?m.b:m.a; return t.length?[{p:t,seed:side?m.sb:m.sa}]:[]; } return m.c>0?aliveTeams(d,m.c-1,2*m.r+side):[]; });
+  const pid=S.draw&&S.draw.pid;
+  const lab=ts=>ts.length?ts.slice(0,4).map(t=>(pid&&t.p.some(x=>x.i===pid))?'<span class="me">'+teamLabel(t)+'</span>':teamLabel(t)).join('<span class="sep"> · </span>')+(ts.length>4?' <span class="muted">+'+(ts.length-4)+'</span>':''):'<span class="muted">tbd</span>';
+  return '<article class="match tbd"><div class="when"><span class="t num">'+(m.t?esc(m.t.slice(11,16)):'—')+'</span>'+(m.t?'<span class="tiny muted">'+esc(dayLabel(m.t.slice(0,10)))+'</span>':'')+'</div><div class="grow"><div class="mhead"><span class="ev">'+esc(m.rd)+' · match '+esc(m.n)+'</span><span class="pill sched">Not decided</span></div><div class="small" style="padding:3px 0">'+lab(sides[0])+'</div><div class="tiny muted" style="padding-left:2px">v</div><div class="small" style="padding:3px 0">'+lab(sides[1])+'</div></div></article>';
+}
+
 /* ---------- hash / sharing ---------- */
 function updHash(){
   let h='';
-  if(S.tab==='players'&&S.player) h='#p='+S.player.i;
+  if(S.draw) h='#d='+S.draw.id+(S.draw.pid?'-'+S.draw.pid:'');
+  else if(S.tab==='players'&&S.player) h='#p='+S.player.i;
   else if(S.tab==='countries'&&S.country) h='#c='+S.country;
   else if(S.tab==='venues') h='#venues';
   else if(S.tab==='players') h='#players';
@@ -668,6 +871,7 @@ function readHash(){
   const h=(location.hash||'').slice(1);
   if(!h) return;
   const m=/^p=(\d+)$/.exec(h); if(m){ S.tab='players'; S.pendingPlayer=m[1]; return; }
+  const dm=/^d=(\d+)(?:-(\d+))?$/.exec(h); if(dm){ S.draw={id:dm[1], pid:dm[2]||null, col:null}; return; }
   const c=/^c=([A-Z]{3})$/.exec(h); if(c){ S.tab='countries'; S.country=c[1]; return; }
   if(h==='venues') S.tab='venues'; else if(h==='players') S.tab='players'; else if(h==='me') S.tab='me';
 }
@@ -684,7 +888,7 @@ function toast(msg){ let t=document.querySelector('.toast'); if(!t){ t=document.
 document.querySelector('.tabbar').addEventListener('click',e=>{
   const b=e.target.closest('.tab'); if(!b) return;
   if(S.tab===b.dataset.tab&&S.tab==='players'){ S.player=null; }
-  S.tab=b.dataset.tab; store.set('tab',S.tab); S.q=''; render();
+  S.tab=b.dataset.tab; store.set('tab',S.tab); S.q=''; S.draw=null; render();
 });
 document.getElementById('refresh').addEventListener('click',()=>load({force:true}));
 document.getElementById('view').addEventListener('input',e=>{
@@ -703,14 +907,19 @@ document.getElementById('view').addEventListener('click',e=>{
   else if(act==='notme'){ S.me=null; store.del('me'); S.q=''; S.focusSearch='q-me'; render(); }
   else if(act==='open'){ const p=pick(); if(p){ S.player=p; S.tab='players'; store.set('tab','players'); render(); } }
   else if(act==='back'){ S.player=null; S.focusSearch='q-players'; render(); }
-  else if(act==='follow'){ const p=pick(); if(!p) return; if(isFollowed(p.i)) S.follow=S.follow.filter(x=>x.i!==p.i); else S.follow.push(p); store.set('follow',S.follow); render(); }
+  else if(act==='follow'){ const p=pick(); if(!p) return; if(isFollowed(p.i)) S.follow=S.follow.filter(x=>x.i!==p.i); else S.follow.push(p); store.set('follow',S.follow); render({keepScroll:true}); }
   else if(act==='share'){ share(id,b.dataset.name||''); }
+  else if(act==='draw'){ S.draw={id:b.dataset.id, pid:b.dataset.pid||null, col:null}; S.drawErr=null; render(); }
+  else if(act==='drawback'){ S.draw=null; render(); }
+  else if(act==='drawcol'){ if(S.draw){ S.draw.col=+b.dataset.c; render(); } }
+  else if(act==='drawretry'){ if(S.draw){ S.drawErr=null; loadDraw(S.draw.id,true).then(()=>render({bg:true})).catch(e=>{ S.drawErr=String(e&&e.message||e); render({bg:true}); }); render(); } }
   else if(act==='country'){ S.country=b.dataset.cc||null; store.set('country',S.country); render(); }
   else if(act==='cday'){ S.cday=b.dataset.d; S.cfilter='all'; render(); }
   else if(act==='cfilter'){ S.cfilter=b.dataset.f; render(); }
   else if(act==='clear'){ S.q=''; S.focusSearch=b.dataset.for; render(); }
   else if(act==='retry'){ load({force:true}); }
 });
+window.addEventListener('scroll',()=>{ S.lastScroll=Date.now(); },{passive:true});
 document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'){ if(Date.now()-D.lastOk>45000) load(); else render({bg:true}); } });
 setInterval(()=>{ if(document.visibilityState==='visible'){ if(Date.now()-(D.lastOk||0)>CFG.refreshMs) load(); else if(S.dirty===false) { /* keep clocks fresh */ render({bg:true}); } } }, 60000);
 window.addEventListener('hashchange',()=>{ readHash(); resolvePending(); render(); });
