@@ -137,7 +137,7 @@ h3{font:600 15px/1.2 "Barlow",system-ui,sans-serif;margin:0 0 6px}
 .pill.warm{background:var(--warn-soft);color:var(--warn)}
 .pill.late{background:var(--warn-soft);color:var(--warn)}
 .pill.done{background:var(--surface2);color:var(--ink2)}
-.pill.bye{background:var(--surface2);color:var(--ink2)}
+.pill.bye,.pill.tbd{background:var(--surface2);color:var(--ink2)}
 .livedot{width:7px;height:7px;border-radius:50%;background:var(--live);animation:pulse 1.2s infinite}
 .team{display:grid;grid-template-columns:24px 1fr auto;gap:6px;align-items:center;padding:3px 0}
 .team .names{min-width:0;font-weight:500;line-height:1.25}
@@ -349,7 +349,10 @@ function compact(raw, date){
       ev:m.eventName||m.drawName||'', rd:m.roundName||'', court, v, loc:m.locationName||'',
       st:m.matchStatus||'N', stv:m.matchStatusValue||'', ss:m.scoreStatusValue||'Normal', du:m.duration==null?null:+m.duration,
       w:+m.winner||0, sc:(m.score||[]).map(s=>[s.home,s.away]), a, b, sa:m.team1seed||'', sb:m.team2seed||'',
-      bye:(!a.length||!b.length)
+      // an empty side in the day feed means "not decided yet" (winner of an earlier round) unless the match is already
+      // finished, in which case it was a bye or a walkover against a withdrawn player
+      bye:(!a.length||!b.length)&&(m.matchStatus==='F'||m.matchStatus==='O'),
+      tbd:(!a.length||!b.length)&&!(m.matchStatus==='F'||m.matchStatus==='O')
     });
   }
   out.sort((x,y)=> x.t<y.t?-1:x.t>y.t?1:(x.court||99)-(y.court||99));
@@ -400,8 +403,12 @@ async function load(opts){
   setDot(anyErr?'err':'ok'); updBtn(false); render({bg:true});
 }
 function bootFromCache(){
-  for(const date of CFG.days){ const c=store.get('day:'+date); if(c&&c.m) D.days[date]=c; }
+  for(const date of CFG.days){ const c=store.get('day:'+date); if(c&&c.m){ c.m.forEach(fixFlags); D.days[date]=c; } }
   rebuildIndex();
+}
+function fixFlags(m){ // derived flags, recomputed so day data cached by an older version of the page cannot mislabel a match
+  const empty=!(m.a&&m.a.length)||!(m.b&&m.b.length); const fin=m.st==='F'||m.st==='O';
+  m.bye=empty&&fin; m.tbd=empty&&!fin;
 }
 
 /* ---------- status bar ---------- */
@@ -474,14 +481,15 @@ function statusOf(m, ctx){
   if(m.st==='W') return {k:'warm',label:'Warm-up'};
   if(m.st==='O') return {k:'done',label:'Finished'};
   if(m.st==='F') return {k:'done',label:m.ss==='Walkover'?'Walkover':m.ss==='Retired'?'Retired':m.ss&&m.ss!=='Normal'?m.ss:'Finished'};
+  if(m.tbd) return {k:'tbd',label:(m.a.length||m.b.length)?'Opponent TBD':'Players TBD'};
   if(m.d===ctx.td && keyMin(m.t)<ctx.nowM-5) return {k:'late',label:'Delayed'};
   return {k:'sched',label:''};
 }
-function teamHtml(team, seed, isWin, isLose, sets, live, hl){
+function teamHtml(team, seed, isWin, isLose, sets, live, hl, emptyLabel){
   const cc=team[0]?team[0].c:'';
   const names=team.map((p,i)=>'<span class="p'+(hl&&hl.has(p.i)?' me':'')+'">'+(i>0&&p.c&&p.c!==cc?'<span class="pflag" title="'+esc(cname(p.c))+'">'+flag(p.c)+'</span> ':'')+esc(p.n)+'</span>').join('<span class="sep">/</span>');
   const setsHtml=sets.map((s,i)=>'<span'+(live&&i===sets.length-1?' class="cur"':'')+'>'+s+'</span>').join('');
-  return '<div class="team'+(isWin?' win':'')+(isLose?' lose':'')+'"><span class="flag" title="'+esc(cname(cc))+'">'+flag(cc)+'</span><div class="names">'+(names||'<span class="muted">Bye</span>')+(seed?'<span class="seed">['+esc(seed)+']</span>':'')+'</div><div class="sets">'+setsHtml+'</div></div>';
+  return '<div class="team'+(isWin?' win':'')+(isLose?' lose':'')+'"><span class="flag" title="'+esc(cname(cc))+'">'+flag(cc)+'</span><div class="names">'+(names||'<span class="muted">'+(emptyLabel||'Bye')+'</span>')+(seed?'<span class="seed">['+esc(seed)+']</span>':'')+'</div><div class="sets">'+setsHtml+'</div></div>';
 }
 function matchCard(m, ctx, opt){
   opt=opt||{};
@@ -501,8 +509,8 @@ function matchCard(m, ctx, opt){
   return '<article class="match'+(mine&&opt.markMine?' mine':'')+(done&&!opt.noFade?' past':'')+(m.bye?' bye':'')+'" data-id="'+m.i+'">'+
     '<div class="when"><span class="t num">'+esc(m.tm||'—')+'</span>'+est+venue+'</div>'+
     '<div class="grow"><div class="mhead">'+dateTag+'<span class="ev">'+esc(m.ev)+' · '+esc(m.rd)+'</span>'+pill+'</div>'+
-    teamHtml(m.a,m.sa,m.w===1,m.w===2,showSets?s1:[],live,opt.hl)+
-    teamHtml(m.b,m.sb,m.w===2,m.w===1,showSets?s2:[],live,opt.hl)+
+    teamHtml(m.a,m.sa,m.w===1,m.w===2,showSets?s1:[],live,opt.hl,m.tbd?'TBD':'Bye')+
+    teamHtml(m.b,m.sb,m.w===2,m.w===1,showSets?s2:[],live,opt.hl,m.tbd?'TBD':'Bye')+
     (opt.foot!==false?'<div class="mfoot"><span>Match '+esc(m.n)+'</span>'+(m.st==='F'&&m.du?'<span>'+m.du+' min</span>':'')+'</div>':'')+
     '</div></article>';
 }
@@ -579,7 +587,7 @@ function nextMatchLine(p, ctx){
   const ms=matchesOf(p.i).filter(m=>!m.bye);
   const up=ms.filter(m=>m.st==='N'||m.st==='W'||m.st==='P');
   if(up.length){ const m=up[0]; const st=statusOf(m,ctx); const opp=(m.a.some(x=>x.i===p.i)?m.b:m.a).map(x=>x.n.split(' ').pop()).join('/');
-    return (st.k==='live'?'<b style="color:var(--live)">LIVE</b> · ':'')+(m.d===ctx.td?'Today':dayLabel(m.d))+' '+m.tm+' · <span class="vchip v-'+m.v+'"><span class="lt">'+m.v+'</span>'+(m.court?'<span>C'+m.court+'</span>':'')+'</span> · '+esc(m.ev)+' '+esc(m.rd)+(opp?' vs '+esc(opp):''); }
+    return (st.k==='live'?'<b style="color:var(--live)">LIVE</b> · ':'')+(m.d===ctx.td?'Today':dayLabel(m.d))+' '+m.tm+' · <span class="vchip v-'+m.v+'"><span class="lt">'+m.v+'</span>'+(m.court?'<span>C'+m.court+'</span>':'')+'</span> · '+esc(m.ev)+' '+esc(m.rd)+(opp?' vs '+esc(opp):(m.tbd?' vs TBD':'')); }
   const last=ms.filter(m=>m.st==='F'||m.st==='O').pop();
   if(last){ const won=(last.w===1&&last.a.some(x=>x.i===p.i))||(last.w===2&&last.b.some(x=>x.i===p.i)); return 'No more matches scheduled yet · last: '+esc(last.ev)+' '+esc(last.rd)+' '+(won?'won':'lost'); }
   return 'No matches scheduled yet';
@@ -600,7 +608,7 @@ function nextBanner(p, ctx){
   const m=up[0]; const dl=ctx.delays[m.v];
   if(m.st==='P') return '<div class="next"><b>On court now</b> · '+esc(m.ev)+' '+esc(m.rd)+' in '+esc(CFG.venues[m.v]?CFG.venues[m.v].name:'venue '+m.v)+(m.court?', court '+m.court:'')+'.</div>';
   if(m.st==='W') return '<div class="next"><b>Warming up now</b> · '+esc(m.ev)+' '+esc(m.rd)+' in '+esc(CFG.venues[m.v]?CFG.venues[m.v].name:'venue '+m.v)+(m.court?', court '+m.court:'')+'.</div>';
-  let txt='<b>Next:</b> '+(m.d===ctx.td?'today':dayLabel(m.d))+' at <b>'+m.tm+'</b>, '+esc(CFG.venues[m.v]?CFG.venues[m.v].name:'venue '+m.v)+(m.court?' court '+m.court:'')+', '+esc(m.ev)+' '+esc(m.rd)+'.';
+  let txt='<b>Next:</b> '+(m.d===ctx.td?'today':dayLabel(m.d))+' at <b>'+m.tm+'</b>, '+esc(CFG.venues[m.v]?CFG.venues[m.v].name:'venue '+m.v)+(m.court?' court '+m.court:'')+', '+esc(m.ev)+' '+esc(m.rd)+'.'+(m.tbd?' Opponent not decided yet.':'');
   if(m.d===ctx.td&&dl&&dl.est!=null&&dl.est>5){ txt+=' '+esc(CFG.venues[m.v].name)+' is running '+(dl.kind==='bound'?'at least ':'about ')+dl.est+' min behind, so expect it around <b>'+minToHM(Math.max(keyMin(m.t)+dl.est,ctx.nowM))+'</b>.'; }
   else if(m.d===ctx.td&&dl&&dl.est!=null){ txt+=' '+esc(CFG.venues[m.v].name)+' is running on time.'; }
   return '<div class="next">'+txt+'</div>';
@@ -976,7 +984,7 @@ function viewStats(){ // hidden page: #stats
   let html='<h2>Usage</h2><p class="small muted">Counted per phone (first visit ever, and once per day). Page loads count every open of the site. Just for fun, not an official statistic.</p>';
   if(!U.days){ html+='<div class="stack"><div class="skel"></div></div>'; if(!U.busy){ U.busy=true; const keys=['loads','devices'].concat(CFG.days.map(d=>'day-'+d)); Promise.all(keys.map(k=>cntCall('get',k))).then(vs=>{ U.days={}; keys.forEach((k,i)=>U.days[k]=vs[i]); U.busy=false; U.at=Date.now(); render({bg:true}); }); } return html; }
   const v=k=>U.days[k]==null?'–':U.days[k];
-  html+='<div class="card"><div class="row"><div class="grow"><div class="ev">Phones so far</div><div class="big">'+v('devices')+'</div></div><div class="grow"><div class="ev">Page loads</div><div class="big">'+v('loads')+'</div></div></div></div>';
+  html+='<div class="card"><div class="row"><div class="grow"><div class="ev">Phones so far</div><div class="big cond" style="font-size:32px;font-weight:700;line-height:1.1">'+v('devices')+'</div></div><div class="grow"><div class="ev">Page loads</div><div class="big cond" style="font-size:32px;font-weight:700;line-height:1.1">'+v('loads')+'</div></div></div></div>';
   html+='<div class="card" style="margin-top:10px"><div class="ev" style="margin-bottom:6px">Phones per day</div>'+CFG.days.map(d=>'<div class="row" style="padding:4px 0;border-bottom:1px solid var(--line)"><span class="grow">'+dayLabel(d)+'</span><b>'+v('day-'+d)+'</b></div>').join('')+'</div>';
   html+='<p class="small muted" style="margin-top:10px">Fetched '+fmtClock(U.at)+'. <button class="btn ghost" data-act="statsreload">Refresh</button></p>';
   return html;
