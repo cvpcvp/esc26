@@ -203,6 +203,18 @@ h3{font:600 15px/1.2 "Barlow",system-ui,sans-serif;margin:0 0 6px}
 .ct .who.dim{font-weight:500;color:var(--ink2)}
 .ct .sc{font:600 13px/1 "Barlow Condensed",system-ui,sans-serif;color:var(--ink2);margin-top:4px}
 
+/* venue: court pills and on-court list */
+.courtrow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:2px}
+.cpill{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:26px;padding:0 6px;border-radius:7px;font:700 13px/1 "Barlow Condensed",system-ui,sans-serif;background:var(--surface2);color:var(--ink3);border:1px dashed var(--line)}
+.cpill.live{background:var(--live-soft);color:var(--live);border-style:solid;border-color:transparent}
+.cpill.warm{background:var(--warn-soft);color:var(--warn);border-style:solid;border-color:transparent}
+.cpill.fin{background:var(--surface2);color:var(--ink2);border-style:solid;border-color:transparent}
+.onlist{display:flex;flex-direction:column}
+.onrow{display:grid;grid-template-columns:40px 1fr;gap:8px;padding:8px 0;border-top:1px solid var(--line);align-items:start}
+.onrow:first-child{border-top:0}
+.cbadge{display:inline-flex;align-items:center;justify-content:center;height:28px;border-radius:7px;background:var(--live-soft);color:var(--live);font:700 13px/1 "Barlow Condensed",system-ui,sans-serif}
+.cbadge.q{background:var(--surface2);color:var(--ink3);border:1px dashed var(--line)}
+.onrow .sc{font:600 14px/1 "Barlow Condensed",system-ui,sans-serif;color:var(--ink2);margin-left:6px;white-space:nowrap}
 /* tab bar */
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
 .tabbar-in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);height:var(--tab-h)}
@@ -250,7 +262,7 @@ const CFG = {
     B:{name:'Venue B', courts:[7,8,9,10], place:'PalaPirastu'},
     C:{name:'Venue C', courts:[11,12,13,14], place:'PalaPirastu'}
   },
-  refreshMs: 120000,   // auto refresh of today while page is visible
+  refreshMs: 60000,    // auto refresh of today while page is visible
   futureMs: 15*60000,  // refetch future days when older than this
   pastMs: 12*3600000   // refetch past days when older than this
 };
@@ -302,7 +314,7 @@ function dayLabel(d, style){ // d 'YYYY-MM-DD'
   if(style==='short') return {wd, dn:String(dt.getUTCDate())};
   return wd+' '+dt.getUTCDate()+' '+mon;
 }
-function fmtClock(ts){ const d=new Date(ts); return p2(d.getHours())+':'+p2(d.getMinutes()); }
+function fmtClock(ts){ const d=new Date(ts); return p2(d.getHours())+':'+p2(d.getMinutes())+':'+p2(d.getSeconds()); }
 
 /* ---------- normalisation for search ---------- */
 const XLAT = {'ø':'o','æ':'ae','å':'a','ß':'ss','ð':'d','þ':'th','ł':'l','đ':'d','œ':'oe','ı':'i'};
@@ -359,7 +371,7 @@ function today(){ return romeNow().slice(0,10); }
 function needsFetch(date, force){
   const day=D.days[date]; if(!day) return true; if(force) return true;
   const age=Date.now()-day.at; const td=today();
-  if(date===td) return age>45000;
+  if(date===td) return age>30000;
   if(date<td) return age>CFG.pastMs || !day.m.length;
   return age>CFG.futureMs || !day.m.length;
 }
@@ -655,27 +667,20 @@ function dayChips(days, sel, act, ctx){
 }
 function viewVenues(ctx){
   const td=ctx.td; const day=D.days[td]; const ms=day?day.m:[];
-  let html='<h2>Venues · today</h2><p class="small muted" style="margin:-4px 0 10px">Delay is estimated from the matches on court right now: their scheduled time versus when they actually started.</p><div class="stack">';
+  let html='<h2>Venues · today</h2><p class="small muted" style="margin:-4px 0 10px">Delay is estimated from the matches on court right now: their scheduled time versus when they actually started. The feed often shows a match as live a few minutes before it shows which court, so a court without a number is not necessarily free.</p><div class="stack">';
   for(const v in CFG.venues){
     const cfg=CFG.venues[v]; const d=ctx.delays[v]; const dt=delayText(d);
     const vm=ms.filter(m=>m.v===v&&!m.bye);
     html+='<section class="card vcard v-'+v+'"><div class="vtitle"><span class="lt">'+v+'</span><span class="nm">'+esc(cfg.name)+'</span><span class="muted small">· courts '+cfg.courts[0]+'–'+cfg.courts[cfg.courts.length-1]+(cfg.place?' · '+esc(cfg.place):'')+'</span></div>';
     html+='<div class="delay '+dt.cls+'"><span class="big">'+esc(dt.big)+'</span> <span class="muted" style="font-weight:500">'+esc(dt.txt)+'</span></div>';
     if(d&&d.tot){ html+='<div class="tiny muted" style="margin:-6px 0 10px">'+d.fin+' of '+d.tot+' matches finished · '+d.on+' on court</div>'; }
-    html+='<div class="courts">';
-    for(const c of cfg.courts){
-      const cur=vm.find(m=>m.court===c&&(m.st==='P'||m.st==='W'));
-      const nxt=vm.filter(m=>m.court===c&&m.st==='N')[0];
-      const remaining=vm.some(m=>m.st==='N');
-      html+='<div class="ct"><div class="cn"><span>Court '+c+'</span>'+(cur?'<span class="st'+(cur.st==='W'?' warm':'')+'">'+(cur.st==='W'?'Warm-up':'Live'+(cur.du?' '+cur.du+"'":''))+'</span>':'<span class="st free">'+(nxt?'Next '+nxt.tm:remaining?'Free':'Done')+'</span>')+'</div>';
-      if(cur){ html+='<div class="who">'+esc(cur.ev)+' '+esc(cur.rd)+'</div><div class="who dim">'+esc(cur.a.map(p=>p.n.split(' ').pop()).join('/'))+' v '+esc(cur.b.map(p=>p.n.split(' ').pop()).join('/'))+'</div>'+(cur.sc.length?'<div class="sc">'+cur.sc.map(s=>s[0]+'-'+s[1]).join('  ')+'</div>':''); }
-      else if(nxt){ html+='<div class="who dim">'+esc(nxt.ev)+' '+esc(nxt.rd)+' · '+esc(nxt.a.map(p=>p.n.split(' ').pop()).join('/'))+' v '+esc(nxt.b.map(p=>p.n.split(' ').pop()).join('/'))+'</div>'; }
-      else html+='<div class="who dim">'+(remaining?'Next match not called yet':'No more matches today')+'</div>';
-      html+='</div>';
-    }
-    html+='</div>';
-    const unassigned=vm.filter(m=>!m.court&&(m.st==='P'||m.st==='W'));
-    if(unassigned.length) html+='<div class="tiny muted" style="margin-top:8px">'+unassigned.length+' more match'+(unassigned.length===1?'':'es')+' on court without a court number in the feed.</div>';
+    // on court now: in progress, warming up, and just finished (off court). The feed often lacks the court number for the first minutes of a match, so never call a court free.
+    const on=vm.filter(m=>m.st==='P'||m.st==='W'||m.st==='O').sort((a,b)=>(a.court||99)-(b.court||99)||a.t.localeCompare(b.t));
+    const known=new Set(on.filter(m=>m.court).map(m=>m.court));
+    html+='<div class="courtrow">'+cfg.courts.map(c=>{ const m=on.find(x=>x.court===c); const k=m?(m.st==='O'?'fin':m.st==='W'?'warm':'live'):'unk'; return '<span class="cpill '+k+'" title="Court '+c+'">'+c+'</span>'; }).join('')+(on.some(m=>!m.court)?'<span class="tiny muted" style="margin-left:6px">+'+on.filter(m=>!m.court).length+' on court, court number not in the feed yet</span>':'')+'</div>';
+    html+='<div class="ev" style="margin:10px 0 6px">On court now · '+on.length+'</div>';
+    if(!on.length) html+='<div class="small muted">Nothing on court in the feed right now.</div>';
+    else html+='<div class="onlist">'+on.map(m=>{ const st=m.st==='W'?'<span class="pill warm">Warm-up</span>':m.st==='O'?'<span class="pill done">Just finished</span>':'<span class="pill live"><span class="livedot"></span>Live'+(m.du?' · '+m.du+"'":'')+'</span>'; const sc=m.sc.length?'<span class="sc num">'+m.sc.map(x=>x[0]+'-'+x[1]).join('  ')+'</span>':''; return '<div class="onrow"><span class="cbadge'+(m.court?'':' q')+'">'+(m.court?'C'+m.court:'C?')+'</span><div class="grow"><div class="row" style="gap:6px"><span class="ev">'+esc(m.ev)+' · '+esc(m.rd)+'</span>'+st+'</div><div class="small">'+esc(m.a.map(p=>p.n.split(' ').pop()).join('/'))+' <span class="muted">v</span> '+esc(m.b.map(p=>p.n.split(' ').pop()).join('/'))+' '+sc+'</div><div class="tiny muted">scheduled '+esc(m.tm)+' · match '+esc(m.n)+'</div></div></div>'; }).join('')+'</div>';
     const upcoming=vm.filter(m=>m.st==='N').slice(0,4);
     if(upcoming.length){ html+='<div style="margin-top:10px"><div class="ev" style="margin-bottom:6px">Next up in '+esc(cfg.name)+'</div><div class="stack">'+upcoming.map(m=>matchCard(m,ctx,{foot:false})).join('')+'</div></div>'; }
     html+='</section>';
@@ -920,8 +925,8 @@ document.getElementById('view').addEventListener('click',e=>{
   else if(act==='retry'){ load({force:true}); }
 });
 window.addEventListener('scroll',()=>{ S.lastScroll=Date.now(); },{passive:true});
-document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'){ if(Date.now()-D.lastOk>45000) load(); else render({bg:true}); } });
-setInterval(()=>{ if(document.visibilityState==='visible'){ if(Date.now()-(D.lastOk||0)>CFG.refreshMs) load(); else if(S.dirty===false) { /* keep clocks fresh */ render({bg:true}); } } }, 60000);
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'){ if(Date.now()-D.lastOk>30000) load(); else render({bg:true}); } });
+setInterval(()=>{ if(document.visibilityState==='visible'){ if(Date.now()-(D.lastOk||0)>CFG.refreshMs) load(); else if(S.dirty===false) { /* keep clocks fresh */ render({bg:true}); } } }, 30000);
 window.addEventListener('hashchange',()=>{ readHash(); resolvePending(); render(); });
 function resolvePending(){ if(S.pendingPlayer){ const p=D.players.get(S.pendingPlayer); if(p){ S.player={i:p.i,n:p.n,c:p.c}; S.pendingPlayer=null; } } }
 
