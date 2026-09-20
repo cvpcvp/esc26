@@ -1,0 +1,712 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1F7A58">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ESC26">
+<meta name="description" content="Match times, courts and venues for the 2026 European Senior Badminton Championships in Cagliari: your matches, your friends, your country, and how far behind schedule each venue is running.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231F7A58'/%3E%3Ccircle cx='32' cy='22' r='9' fill='%23fff'/%3E%3Cpath d='M20 54 L32 30 L44 54 Z' fill='%23fff' opacity='.9'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231F7A58'/%3E%3Ccircle cx='32' cy='22' r='9' fill='%23fff'/%3E%3Cpath d='M20 54 L32 30 L44 54 Z' fill='%23fff' opacity='.9'/%3E%3C/svg%3E">
+<title>ESC26 Cagliari</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#F3F5F2; --surface:#FFFFFF; --surface2:#E9EDE8; --ink:#16212A; --ink2:#5E6B74; --ink3:#8B979F;
+  --line:#D8DED9; --accent:#1F7A58; --accent-soft:#DDEFE6; --accent-ink:#0F4D36;
+  --live:#D6453A; --live-soft:#FBE4E1; --warn:#B9730B; --warn-soft:#FBEBD0;
+  --vA:#2B62D9; --vA-soft:#DDE7FB; --vB:#D9781F; --vB-soft:#FBE8D6; --vC:#7E4FD6; --vC-soft:#EAE1FB;
+  --hl:#FFF3C4; --shadow:0 1px 2px rgba(20,30,40,.06),0 4px 14px rgba(20,30,40,.05);
+  --tab-h:60px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1418; --surface:#161E24; --surface2:#1E2930; --ink:#E7ECEA; --ink2:#A2AEB5; --ink3:#73808A;
+    --line:#2A363E; --accent:#43B282; --accent-soft:#183A2C; --accent-ink:#B8EBD1;
+    --live:#FF6F63; --live-soft:#45211E; --warn:#F0A83A; --warn-soft:#3E2E12;
+    --vA:#7FA6FF; --vA-soft:#1D2C4D; --vB:#F3A45B; --vB-soft:#43301A; --vC:#B79BFF; --vC-soft:#31264D;
+    --hl:#4A3E14; --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1418; --surface:#161E24; --surface2:#1E2930; --ink:#E7ECEA; --ink2:#A2AEB5; --ink3:#73808A;
+  --line:#2A363E; --accent:#43B282; --accent-soft:#183A2C; --accent-ink:#B8EBD1;
+  --live:#FF6F63; --live-soft:#45211E; --warn:#F0A83A; --warn-soft:#3E2E12;
+  --vA:#7FA6FF; --vA-soft:#1D2C4D; --vB:#F3A45B; --vB-soft:#43301A; --vC:#B79BFF; --vC-soft:#31264D;
+  --hl:#4A3E14; --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+img{max-width:100%}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light dark}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 "Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cond{font-family:"Barlow Condensed","Barlow",system-ui,sans-serif}
+.num{font-variant-numeric:tabular-nums}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.top-in{display:flex;align-items:center;gap:10px;padding:10px 16px;max-width:760px;margin:0 auto}
+.brand{display:flex;flex-direction:column;min-width:0;flex:1}
+.brand h1{margin:0;font:700 21px/1 "Barlow Condensed",system-ui,sans-serif;letter-spacing:.2px;text-transform:uppercase;white-space:nowrap}
+.brand small{color:var(--ink2);font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.upd{display:flex;align-items:center;gap:6px;color:var(--ink2);font-size:12px;white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ink3);display:inline-block}
+.dot.ok{background:var(--accent)} .dot.err{background:var(--live)} .dot.busy{background:var(--warn);animation:pulse 1s infinite}
+.iconbtn{border:1px solid var(--line);background:var(--surface);border-radius:10px;width:38px;height:38px;display:grid;place-items:center;color:var(--ink)}
+.iconbtn svg{width:18px;height:18px}
+.iconbtn.spin svg{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.iconbtn.spin svg,.dot.busy,.livedot{animation:none}}
+
+/* main */
+main{max-width:760px;margin:0 auto;padding:12px 16px calc(var(--tab-h) + env(safe-area-inset-bottom,0px) + 24px)}
+.banner{border-radius:12px;padding:10px 12px;font-size:14px;margin-bottom:12px;background:var(--warn-soft);color:var(--ink);border:1px solid transparent}
+.banner.err{background:var(--live-soft)}
+.banner.info{background:var(--accent-soft)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow)}
+.stack{display:flex;flex-direction:column;gap:12px}
+h2{font:700 20px/1.1 "Barlow Condensed",system-ui,sans-serif;text-transform:uppercase;letter-spacing:.3px;margin:18px 0 8px}
+h2:first-child{margin-top:4px}
+h3{font:600 15px/1.2 "Barlow",system-ui,sans-serif;margin:0 0 6px}
+.muted{color:var(--ink2)} .small{font-size:13px} .tiny{font-size:12px}
+.row{display:flex;align-items:center;gap:8px}
+.grow{flex:1;min-width:0}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 12px;font-weight:600;font-size:14px;display:inline-flex;align-items:center;gap:6px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--accent);padding-inline:6px}
+.btn:disabled{opacity:.5;cursor:default}
+.btn svg{width:16px;height:16px}
+
+/* search */
+.search{position:relative}
+.sres{margin-top:10px}
+.search input{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 40px 12px 14px;font-size:16px}
+.search .clr{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:transparent;width:32px;height:32px;border-radius:8px;color:var(--ink2);font-size:18px}
+.list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}
+.list > *{border-top:1px solid var(--line)} .list > :first-child{border-top:0}
+.prow{display:flex;align-items:center;gap:10px;padding:10px 12px;text-align:left;background:transparent;border-left:0;border-right:0;border-bottom:0;width:100%}
+.prow:active{background:var(--surface2)}
+.prow .nm{font-weight:600}
+.prow .sub{font-size:12px;color:var(--ink2)}
+.flag{font-size:18px;line-height:1;width:24px;text-align:center;flex:0 0 auto}
+.cc{font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--ink2)}
+
+/* chips */
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 12px;font-size:14px;font-weight:600;color:var(--ink);display:inline-flex;align-items:center;gap:6px}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip .n{font-weight:500;opacity:.7;font-size:12px}
+.cgrid{display:flex;flex-wrap:wrap;gap:8px}
+.cgrid .chip{padding:8px 12px 8px 9px}
+.chip.day{flex-direction:column;gap:0;padding:6px 12px;line-height:1.05;min-width:56px}
+.chip.day b{font:700 16px/1 "Barlow Condensed",system-ui,sans-serif}
+.chip.day span{font-size:11px;font-weight:500;opacity:.75}
+.chip.day.nodata{opacity:.45}
+
+/* match cards */
+.dayhead{display:flex;align-items:baseline;gap:8px;margin:16px 0 6px}
+.dayhead h2{margin:0}
+.dayhead .muted{font-size:13px}
+.match{display:grid;grid-template-columns:minmax(66px,auto) 1fr;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px 10px 10px;box-shadow:var(--shadow);position:relative}
+.match.mine{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft),var(--shadow)}
+.match.past{opacity:.72}
+.match.bye{opacity:.6}
+.when{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.when .t{font:700 24px/1 "Barlow Condensed",system-ui,sans-serif;letter-spacing:.2px}
+.when .est{font-size:12px;color:var(--warn);font-weight:600;line-height:1.1}
+.when .est.ok{color:var(--ink3);font-weight:500}
+.vchip{display:inline-flex;align-items:center;gap:4px;border-radius:7px;padding:3px 6px;font:700 12px/1 "Barlow Condensed",system-ui,sans-serif;letter-spacing:.3px;text-transform:uppercase}
+.vchip .lt{font-size:14px}
+.v-A{background:var(--vA-soft);color:var(--vA)} .v-B{background:var(--vB-soft);color:var(--vB)} .v-C{background:var(--vC-soft);color:var(--vC)} .v-{background:var(--surface2);color:var(--ink2)}
+.court{font-size:12px;color:var(--ink2);font-weight:600}
+.mhead{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.ev{font:600 13px/1 "Barlow Condensed",system-ui,sans-serif;letter-spacing:.4px;text-transform:uppercase;color:var(--ink2)}
+.pill{margin-left:auto;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+.pill.live{background:var(--live-soft);color:var(--live)}
+.pill.warm{background:var(--warn-soft);color:var(--warn)}
+.pill.late{background:var(--warn-soft);color:var(--warn)}
+.pill.done{background:var(--surface2);color:var(--ink2)}
+.pill.bye{background:var(--surface2);color:var(--ink2)}
+.livedot{width:7px;height:7px;border-radius:50%;background:var(--live);animation:pulse 1.2s infinite}
+.team{display:grid;grid-template-columns:24px 1fr auto;gap:6px;align-items:center;padding:3px 0}
+.team .names{min-width:0;font-weight:500;line-height:1.25}
+.team .names .p{display:inline}
+.team .names .sep{color:var(--ink3);margin:0 3px}
+.team.win .names{font-weight:700}
+.team.lose .names{color:var(--ink2)}
+.team .names .me{background:var(--hl);border-radius:4px;padding:0 3px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.team .pflag{font-size:14px;margin-right:1px}
+.team .seed{font-size:11px;color:var(--ink3);font-weight:600;margin-left:3px}
+.sets{display:flex;gap:6px;font:600 15px/1 "Barlow Condensed",system-ui,sans-serif;color:var(--ink2);min-width:0}
+.sets span{width:20px;text-align:right;font-variant-numeric:tabular-nums}
+.team.win .sets span{color:var(--ink)}
+.sets span.cur{color:var(--live);font-weight:700}
+.vs{position:absolute;left:78px;font-size:10px;color:var(--ink3);letter-spacing:.5px}
+.mfoot{display:flex;gap:10px;margin-top:4px;font-size:12px;color:var(--ink2)}
+.nowline{display:flex;align-items:center;gap:8px;color:var(--live);font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin:6px 0}
+.nowline::before,.nowline::after{content:"";flex:1;height:1px;background:var(--live);opacity:.5}
+
+/* hero for me */
+.hero{background:linear-gradient(135deg,var(--accent) 0%,#2a9a6f 100%);color:#fff;border-radius:16px;padding:18px 16px}
+.hero h2{color:#fff;margin:0 0 4px;font-size:24px}
+.hero p{margin:0 0 12px;opacity:.92}
+.hero .search input{border-color:transparent}
+.mehead{display:flex;align-items:center;gap:12px}
+.mehead .big{font:700 26px/1 "Barlow Condensed",system-ui,sans-serif}
+.mehead .flag{font-size:30px;width:36px}
+.next{background:var(--accent-soft);color:var(--accent-ink);border-radius:12px;padding:10px 12px;font-size:14px}
+.next b{font-weight:700}
+
+/* venues */
+.vcard{border-left:5px solid var(--line)}
+.vcard.v-A{border-left-color:var(--vA);background:var(--surface);color:var(--ink)}
+.vcard.v-B{border-left-color:var(--vB);background:var(--surface);color:var(--ink)}
+.vcard.v-C{border-left-color:var(--vC);background:var(--surface);color:var(--ink)}
+.vtitle{display:flex;align-items:baseline;gap:8px}
+.vtitle .lt{font:700 28px/1 "Barlow Condensed",system-ui,sans-serif}
+.vtitle .nm{font-weight:600}
+.delay{margin:8px 0 10px;font:600 15px/1.2 "Barlow",system-ui,sans-serif}
+.delay .big{font:700 30px/1 "Barlow Condensed",system-ui,sans-serif;margin-right:4px}
+.delay.ok .big{color:var(--accent)} .delay.late .big{color:var(--warn)} .delay.bad .big{color:var(--live)}
+.courts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.ct{border:1px solid var(--line);border-radius:10px;padding:8px;font-size:13px;min-height:64px;background:var(--bg)}
+.ct .cn{font:700 13px/1 "Barlow Condensed",system-ui,sans-serif;text-transform:uppercase;letter-spacing:.4px;color:var(--ink2);display:flex;justify-content:space-between;margin-bottom:5px}
+.ct .cn .st{color:var(--live)} .ct .cn .st.warm{color:var(--warn)} .ct .cn .st.free{color:var(--ink3)}
+.ct .who{font-weight:600;line-height:1.2;font-size:13px}
+.ct .who.dim{font-weight:500;color:var(--ink2)}
+.ct .sc{font:600 13px/1 "Barlow Condensed",system-ui,sans-serif;color:var(--ink2);margin-top:4px}
+
+/* tab bar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabbar-in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);height:var(--tab-h)}
+.tab{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--ink2);font-size:11px;font-weight:600;letter-spacing:.3px;text-transform:uppercase}
+.tab svg{width:22px;height:22px}
+.tab.on{color:var(--accent)}
+.empty{padding:24px 12px;text-align:center;color:var(--ink2)}
+.foot{margin-top:28px;font-size:12px;color:var(--ink3);line-height:1.5}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:transparent;padding:7px 10px;font-size:13px;font-weight:600;color:var(--ink2)}
+.seg button.on{background:var(--ink);color:var(--bg)}
+.toast{position:fixed;left:50%;bottom:calc(var(--tab-h) + env(safe-area-inset-bottom,0px) + 14px);transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:999px;font-size:13px;font-weight:600;z-index:40;box-shadow:var(--shadow)}
+.skel{height:64px;border-radius:14px;background:linear-gradient(90deg,var(--surface2),var(--surface),var(--surface2));background-size:200% 100%;animation:sh 1.2s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+</style>
+
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <div class="brand"><h1>ESC26 Cagliari</h1><small id="sub">European Senior Championships · 19–27 Sep</small></div>
+  <div class="upd"><span class="dot" id="dot"></span><span id="updtxt">…</span></div>
+  <button class="iconbtn" id="refresh" aria-label="Refresh" title="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></button>
+</div></header>
+
+<main id="view"><div class="stack"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div></main>
+
+<nav class="tabbar"><div class="tabbar-in">
+  <button class="tab" data-tab="me" id="tab-me"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Me</button>
+  <button class="tab" data-tab="players" id="tab-players"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Players</button>
+  <button class="tab" data-tab="countries" id="tab-countries"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V4"/><path d="M4 4h13l-2 4 2 4H4"/></svg>Countries</button>
+  <button class="tab" data-tab="venues" id="tab-venues"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V8l7-4 7 4v13"/><path d="M9 21v-6h6v6"/></svg>Venues</button>
+</div></nav>
+
+<script>
+(function(){
+'use strict';
+/* ---------- configuration ---------- */
+const CFG = {
+  code: 'CC7C6F6B-949E-4A29-B7FF-54D537610F5B',
+  api: 'https://extranet-lv.bwfbadminton.com/api/tournaments/day-matches',
+  days: ['2026-09-19','2026-09-20','2026-09-21','2026-09-22','2026-09-23','2026-09-24','2026-09-25','2026-09-26','2026-09-27'],
+  tz: 'Europe/Rome',
+  venues: {
+    A:{name:'Venue A', courts:[1,2,3,4,5,6], place:'PalaPirastu'},
+    B:{name:'Venue B', courts:[7,8,9,10], place:'PalaPirastu'},
+    C:{name:'Venue C', courts:[11,12,13,14], place:'PalaPirastu'}
+  },
+  refreshMs: 120000,   // auto refresh of today while page is visible
+  futureMs: 15*60000,  // refetch future days when older than this
+  pastMs: 12*3600000   // refetch past days when older than this
+};
+const ISO = {ARM:'AM',AUT:'AT',AZE:'AZ',BEL:'BE',BIH:'BA',BLR:'BY',BUL:'BG',CRO:'HR',CYP:'CY',CZE:'CZ',DEN:'DK',ESP:'ES',EST:'EE',FIN:'FI',FRA:'FR',GBR:'GB',GEO:'GE',GER:'DE',GRE:'GR',HUN:'HU',IRL:'IE',ISL:'IS',ISR:'IL',ITA:'IT',KOS:'XK',LAT:'LV',LIE:'LI',LTU:'LT',LUX:'LU',MDA:'MD',MKD:'MK',MLT:'MT',MNE:'ME',NED:'NL',NOR:'NO',POL:'PL',POR:'PT',ROU:'RO',SLO:'SI',SMR:'SM',SRB:'RS',SUI:'CH',SVK:'SK',SWE:'SE',TUR:'TR',UKR:'UA',FRO:'FO',GIB:'GI',AND:'AD',MON:'MC',ALB:'AL',RUS:'RU',KAZ:'KZ',GRL:'GL',USA:'US',CAN:'CA',AUS:'AU',IND:'IN',JPN:'JP',CHN:'CN',KOR:'KR',INA:'ID',MAS:'MY',THA:'TH',SGP:'SG',RSA:'ZA',NZL:'NZ',BRA:'BR',PER:'PE',HKG:'HK',TPE:'TW'};
+const NAMES = {ARM:'Armenia',AUT:'Austria',AZE:'Azerbaijan',BEL:'Belgium',BIH:'Bosnia and Herzegovina',BLR:'Belarus',BUL:'Bulgaria',CRO:'Croatia',CYP:'Cyprus',CZE:'Czechia',DEN:'Denmark',ESP:'Spain',EST:'Estonia',FIN:'Finland',FRA:'France',GBR:'Great Britain',GEO:'Georgia',GER:'Germany',GRE:'Greece',HUN:'Hungary',IRL:'Ireland',ISL:'Iceland',ISR:'Israel',ITA:'Italy',KOS:'Kosovo',LAT:'Latvia',LIE:'Liechtenstein',LTU:'Lithuania',LUX:'Luxembourg',MDA:'Moldova',MKD:'North Macedonia',MLT:'Malta',MNE:'Montenegro',NED:'Netherlands',NOR:'Norway',POL:'Poland',POR:'Portugal',ROU:'Romania',SLO:'Slovenia',SMR:'San Marino',SRB:'Serbia',SUI:'Switzerland',SVK:'Slovakia',SWE:'Sweden',TUR:'Türkiye',UKR:'Ukraine',ENG:'England',SCO:'Scotland',WAL:'Wales',FRO:'Faroe Islands',GIB:'Gibraltar',AND:'Andorra',MON:'Monaco',ALB:'Albania',RUS:'Russia',KAZ:'Kazakhstan',GRL:'Greenland',USA:'USA',CAN:'Canada',AUS:'Australia',IND:'India',JPN:'Japan',CHN:'China',KOR:'Korea',INA:'Indonesia',MAS:'Malaysia',THA:'Thailand',SGP:'Singapore',RSA:'South Africa',NZL:'New Zealand',BRA:'Brazil',PER:'Peru',HKG:'Hong Kong',TPE:'Chinese Taipei'};
+const SUBFLAG = {ENG:'\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}',SCO:'\u{1F3F4}\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}',WAL:'\u{1F3F4}\u{E0067}\u{E0062}\u{E0077}\u{E006C}\u{E0073}\u{E007F}'};
+function flag(cc){
+  if(!cc) return '';
+  if(SUBFLAG[cc]) return SUBFLAG[cc];
+  const iso=ISO[cc]; if(!iso) return '';
+  return String.fromCodePoint(...[...iso].map(ch=>0x1F1E6+ch.charCodeAt(0)-65));
+}
+function cname(cc){ return NAMES[cc]||cc||'—'; }
+
+/* ---------- storage ---------- */
+const store = {
+  get(k,d){ try{ const v=localStorage.getItem('esc26:'+k); return v==null?d:JSON.parse(v);}catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem('esc26:'+k, JSON.stringify(v)); }catch(e){} },
+  del(k){ try{ localStorage.removeItem('esc26:'+k);}catch(e){} }
+};
+
+/* ---------- time helpers (all wall-clock, Cagliari time) ---------- */
+function romeNow(){ // 'YYYY-MM-DD HH:MM'
+  try{ return new Date().toLocaleString('sv-SE',{timeZone:CFG.tz,hour12:false}).slice(0,16).replace('T',' '); }
+  catch(e){ const d=new Date(); return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())+' '+p2(d.getHours())+':'+p2(d.getMinutes()); }
+}
+function p2(n){ return (n<10?'0':'')+n; }
+function keyMin(s){ // 'YYYY-MM-DD HH:MM' -> minutes
+  return Date.UTC(+s.slice(0,4), +s.slice(5,7)-1, +s.slice(8,10), +s.slice(11,13), +s.slice(14,16))/60000;
+}
+function minToHM(min){ const d=new Date(min*60000); return p2(d.getUTCHours())+':'+p2(d.getUTCMinutes()); }
+function dayLabel(d, style){ // d 'YYYY-MM-DD'
+  const dt=new Date(d+'T12:00:00Z'); const wd=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dt.getUTCDay()];
+  const mon=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][dt.getUTCMonth()];
+  if(style==='short') return {wd, dn:String(dt.getUTCDate())};
+  return wd+' '+dt.getUTCDate()+' '+mon;
+}
+function fmtClock(ts){ const d=new Date(ts); return p2(d.getHours())+':'+p2(d.getMinutes()); }
+
+/* ---------- normalisation for search ---------- */
+const XLAT = {'ø':'o','æ':'ae','å':'a','ß':'ss','ð':'d','þ':'th','ł':'l','đ':'d','œ':'oe','ı':'i'};
+function norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[øæåßðþłđœı]/g,c=>XLAT[c]||c).replace(/[^a-z0-9 ]+/g,' ').replace(/\s+/g,' ').trim(); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+// The BWF feed capitalises the letter after a non-ASCII letter ("SøRen", "MåNs"). Fix that in words that are not all caps.
+function fixName(s){ return (s||'').split(' ').map(w=>{ if(w===w.toUpperCase()) return w; return w.replace(/([^\x00-\x7F])([A-Z])/g,(m,a,b)=>a+b.toLowerCase()); }).join(' '); }
+
+/* ---------- data ---------- */
+const D = { days:{}, players:new Map(), countries:new Map(), loading:0, lastOk:0, lastErr:null };
+function compact(raw, date){
+  const out=[];
+  for(const m of raw){
+    const team=t=>(t&&t.players||[]).map(p=>({i:String(p.id), n:fixName(p.nameDisplay||((p.firstName||'')+' '+(p.lastName||'')).trim()), c:p.countryCode||t.countryCode||''}));
+    const a=team(m.team1), b=team(m.team2);
+    let v=''; const lm=/Venue\s+([A-Z])/i.exec(m.locationName||''); if(lm) v=lm[1].toUpperCase();
+    const cn=/(\d+)/.exec(m.courtName||''); const court=cn?+cn[1]:0;
+    if(!v && court){ for(const k in CFG.venues){ if(CFG.venues[k].courts.includes(court)) v=k; } }
+    out.push({
+      i:String(m.id), n:String(m.code||''), d:date, t:(m.matchTime||'').slice(0,16), tm:(m.matchTime||'').slice(11,16),
+      ev:m.eventName||m.drawName||'', rd:m.roundName||'', court, v, loc:m.locationName||'',
+      st:m.matchStatus||'N', stv:m.matchStatusValue||'', ss:m.scoreStatusValue||'Normal', du:m.duration==null?null:+m.duration,
+      w:+m.winner||0, sc:(m.score||[]).map(s=>[s.home,s.away]), a, b, sa:m.team1seed||'', sb:m.team2seed||'',
+      bye:(!a.length||!b.length)
+    });
+  }
+  out.sort((x,y)=> x.t<y.t?-1:x.t>y.t?1:(x.court||99)-(y.court||99));
+  return out;
+}
+async function fetchDay(date){
+  const url=CFG.api+'?tournamentCode='+CFG.code+'&date='+date+'&order=2&court=0&_='+Math.floor(Date.now()/15000);
+  const r=await fetch(url,{cache:'no-store'});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const j=await r.json();
+  const arr=Array.isArray(j)?j:(j.results||j.matches||[]);
+  return compact(arr,date);
+}
+function rebuildIndex(){
+  D.players=new Map(); D.countries=new Map();
+  for(const date of CFG.days){
+    const day=D.days[date]; if(!day) continue;
+    for(const m of day.m){
+      for(const p of m.a.concat(m.b)){
+        let e=D.players.get(p.i);
+        if(!e){ e={i:p.i,n:p.n,c:p.c,ev:new Set(),k:norm(p.n)}; D.players.set(p.i,e); }
+        e.ev.add(m.ev);
+        if(p.c){ D.countries.set(p.c,(D.countries.get(p.c)||0)+1); }
+      }
+    }
+  }
+}
+function today(){ return romeNow().slice(0,10); }
+function needsFetch(date, force){
+  const day=D.days[date]; if(!day) return true; if(force) return true;
+  const age=Date.now()-day.at; const td=today();
+  if(date===td) return age>45000;
+  if(date<td) return age>CFG.pastMs || !day.m.length;
+  return age>CFG.futureMs || !day.m.length;
+}
+async function load(opts){
+  opts=opts||{};
+  const dates=CFG.days.filter(d=>needsFetch(d,opts.force));
+  if(!dates.length){ return; }
+  D.loading++; setDot('busy'); updBtn(true);
+  let anyErr=null;
+  await Promise.all(dates.map(async date=>{
+    try{ const m=await fetchDay(date); D.days[date]={at:Date.now(),m}; store.set('day:'+date,D.days[date]); D.lastOk=Date.now(); }
+    catch(e){ anyErr=e; if(!D.days[date]){ const c=store.get('day:'+date); if(c) D.days[date]=c; } }
+  }));
+  D.loading--; D.lastErr=anyErr; rebuildIndex();
+  setDot(anyErr?'err':'ok'); updBtn(false); render({bg:true});
+}
+function bootFromCache(){
+  for(const date of CFG.days){ const c=store.get('day:'+date); if(c&&c.m) D.days[date]=c; }
+  rebuildIndex();
+}
+
+/* ---------- status bar ---------- */
+function setDot(k){ const d=document.getElementById('dot'); d.className='dot '+k; updTxt(); }
+function updTxt(){
+  const el=document.getElementById('updtxt');
+  if(D.loading){ el.textContent='Updating…'; return; }
+  if(D.lastOk){ el.textContent=(D.lastErr?'Offline · ':'Updated ')+fmtClock(D.lastOk); }
+  else if(D.lastErr){ el.textContent='No connection'; }
+  else el.textContent='…';
+}
+function updBtn(b){ document.getElementById('refresh').classList.toggle('spin',!!b); }
+
+/* ---------- app state ---------- */
+const S = {
+  tab: store.get('tab','me'),
+  me: store.get('me',null),
+  follow: store.get('follow',[]),
+  country: store.get('country',null),
+  cday: null, cfilter:'all',
+  q:'', player:null, // player view inside Players tab
+  pday: {}
+};
+function isFollowed(id){ return S.follow.some(p=>p.i===id); }
+
+/* ---------- derived ---------- */
+function allMatches(){ const out=[]; for(const d of CFG.days){ const day=D.days[d]; if(day) for(const m of day.m) out.push(m); } return out; }
+function matchesOf(pid){ return allMatches().filter(m=>m.a.some(p=>p.i===pid)||m.b.some(p=>p.i===pid)); }
+function matchesOfCountry(cc, date){ const day=D.days[date]; if(!day) return []; return day.m.filter(m=>m.a.some(p=>p.c===cc)||m.b.some(p=>p.c===cc)); }
+function publishedDays(){ return CFG.days.filter(d=>D.days[d]&&D.days[d].m.length); }
+
+/* delay estimate per venue, from today's matches */
+function venueDelays(){
+  const td=today(), nowM=keyMin(romeNow()); const day=D.days[td]; const res={};
+  for(const v in CFG.venues){
+    const ms=day?day.m.filter(m=>m.v===v&&!m.bye):[];
+    const on=ms.filter(m=>m.st==='P'||m.st==='W');
+    const ds=on.map(m=>(nowM-(m.du||0))-keyMin(m.t)).sort((a,b)=>a-b);
+    let est=null, kind='none', basis=0;
+    if(ds.length){ est=ds[Math.floor(ds.length/2)]; kind='live'; basis=ds.length; }
+    const overdue=ms.filter(m=>m.st==='N'&&keyMin(m.t)<nowM);
+    if(overdue.length){
+      const bound=nowM-Math.max(...overdue.map(m=>keyMin(m.t))); // conservative lower bound
+      if(est==null){ est=bound; kind='bound'; basis=overdue.length; }
+      else if(bound>est){ est=bound; kind='bound+'; }
+    }
+    const fin=ms.filter(m=>m.st==='F'||m.st==='O').length, tot=ms.length;
+    const lastSched=ms.length?Math.max(...ms.map(m=>keyMin(m.t))):null;
+    const started=ms.length&&ms.every(m=>m.st!=='N');
+    res[v]={est:est==null?null:Math.round(est), kind, basis, fin, tot, on:on.length, done:started&&tot>0&&fin===tot, lastSched};
+  }
+  return res;
+}
+function delayText(d){
+  if(!d||d.est==null){ if(d&&d.done) return {cls:'ok',big:'Done',txt:'All matches in this venue are finished for today.'}; return {cls:'ok',big:'—',txt:'No live matches right now.'}; }
+  const e=d.est;
+  const basis=d.kind==='live'||d.kind==='bound+'?d.basis+' match'+(d.basis===1?'':'es')+' on court':'no match has started since its scheduled time';
+  if(e<=5&&e>=-10) return {cls:'ok',big:'On time',txt:'Running to schedule (based on '+basis+').'};
+  if(e<-10) return {cls:'ok',big:Math.abs(e)+' min',txt:'ahead of schedule (based on '+basis+').'};
+  const cls=e>=45?'bad':'late';
+  const pre=d.kind==='bound'?'at least ':'about ';
+  return {cls,big:pre+e+' min',txt:'behind schedule (based on '+basis+').'};
+}
+
+/* ---------- rendering helpers ---------- */
+const nowKeyCache={};
+function statusOf(m, ctx){
+  if(m.bye) return {k:'bye',label:'Bye'};
+  if(m.st==='P') return {k:'live',label:'Live'};
+  if(m.st==='W') return {k:'warm',label:'Warm-up'};
+  if(m.st==='O') return {k:'done',label:'Finished'};
+  if(m.st==='F') return {k:'done',label:m.ss==='Walkover'?'Walkover':m.ss==='Retired'?'Retired':m.ss&&m.ss!=='Normal'?m.ss:'Finished'};
+  if(m.d===ctx.td && keyMin(m.t)<ctx.nowM-5) return {k:'late',label:'Delayed'};
+  return {k:'sched',label:''};
+}
+function teamHtml(team, seed, isWin, isLose, sets, live, hl){
+  const cc=team[0]?team[0].c:'';
+  const names=team.map((p,i)=>'<span class="p'+(hl&&hl.has(p.i)?' me':'')+'">'+(i>0&&p.c&&p.c!==cc?'<span class="pflag" title="'+esc(cname(p.c))+'">'+(flag(p.c)||esc(p.c))+'</span> ':'')+esc(p.n)+'</span>').join('<span class="sep">/</span>');
+  const setsHtml=sets.map((s,i)=>'<span'+(live&&i===sets.length-1?' class="cur"':'')+'>'+s+'</span>').join('');
+  return '<div class="team'+(isWin?' win':'')+(isLose?' lose':'')+'"><span class="flag" title="'+esc(cname(cc))+'">'+(flag(cc)||'<span class="cc">'+esc(cc)+'</span>')+'</span><div class="names">'+(names||'<span class="muted">Bye</span>')+(seed?'<span class="seed">['+esc(seed)+']</span>':'')+'</div><div class="sets">'+setsHtml+'</div></div>';
+}
+function matchCard(m, ctx, opt){
+  opt=opt||{};
+  const st=statusOf(m,ctx);
+  const done=st.k==='done'||st.k==='bye';
+  const live=st.k==='live';
+  const s1=m.sc.map(s=>s[0]), s2=m.sc.map(s=>s[1]);
+  const showSets=m.sc.length&&!m.bye;
+  let est='';
+  if(m.st==='N'&&!m.bye&&m.d===ctx.td&&ctx.delays&&ctx.delays[m.v]&&ctx.delays[m.v].est!=null&&ctx.delays[m.v].est>5){
+    const e=keyMin(m.t)+ctx.delays[m.v].est; est='<span class="est" title="Estimated start, based on the current delay in this venue">≈ '+minToHM(Math.max(e,ctx.nowM))+'</span>';
+  }
+  const venue='<span class="vchip v-'+esc(m.v)+'"><span class="lt">'+(m.v||'?')+'</span>'+(m.court?'<span>C'+m.court+'</span>':'')+'</span>';
+  const pill=st.label?'<span class="pill '+st.k+'">'+(live?'<span class="livedot"></span>':'')+esc(st.label)+(live&&m.du?' · '+m.du+"'":'')+'</span>':'';
+  const mine=opt.hl&&(m.a.some(p=>opt.hl.has(p.i))||m.b.some(p=>opt.hl.has(p.i)));
+  const dateTag=opt.showDate?'<span class="tiny muted">'+dayLabel(m.d)+'</span>':'';
+  return '<article class="match'+(mine&&opt.markMine?' mine':'')+(done&&!opt.noFade?' past':'')+(m.bye?' bye':'')+'" data-id="'+m.i+'">'+
+    '<div class="when"><span class="t num">'+esc(m.tm)+'</span>'+est+venue+'</div>'+
+    '<div class="grow"><div class="mhead">'+dateTag+'<span class="ev">'+esc(m.ev)+' · '+esc(m.rd)+'</span>'+pill+'</div>'+
+    teamHtml(m.a,m.sa,m.w===1,m.w===2,showSets?s1:[],live,opt.hl)+
+    teamHtml(m.b,m.sb,m.w===2,m.w===1,showSets?s2:[],live,opt.hl)+
+    (opt.foot!==false?'<div class="mfoot"><span>Match '+esc(m.n)+'</span>'+(m.st==='F'&&m.du?'<span>'+m.du+' min</span>':'')+'</div>':'')+
+    '</div></article>';
+}
+function listWithNow(ms, ctx, opt){
+  // inserts a "now" line between past and upcoming matches when the list is today's
+  let html='', placed=false;
+  for(const m of ms){
+    if(!placed && m.d===ctx.td && m.st==='N' && !m.bye && keyMin(m.t)>=ctx.nowM-5){ html+='<div class="nowline">Now · '+esc(romeNow().slice(11))+'</div>'; placed=true; }
+    html+=matchCard(m,ctx,opt);
+  }
+  return html;
+}
+function ctxNow(){ const td=today(); return {td, nowM:keyMin(romeNow()), delays:venueDelays()}; }
+function groupByDay(ms){ const g={}; for(const m of ms){ (g[m.d]=g[m.d]||[]).push(m); } return g; }
+function playerHead(p){
+  return '<div class="mehead"><span class="flag">'+(flag(p.c)||'')+'</span><div class="grow"><div class="big">'+esc(p.n)+'</div><div class="small muted">'+esc(cname(p.c))+(p.ev&&p.ev.size?' · '+[...p.ev].join(', '):'')+'</div></div></div>';
+}
+function playerFromIndex(p){ const e=D.players.get(p.i); return e||{i:p.i,n:p.n,c:p.c,ev:new Set()}; }
+
+/* ---------- views ---------- */
+function render(opts){
+  const ae=document.activeElement;
+  if(opts&&opts.bg&&ae&&ae.tagName==='INPUT'&&ae.value){ S.dirty=true; return; } // do not wipe the user's typing on a background refresh
+  S.dirty=false;
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.tab===S.tab));
+  const v=document.getElementById('view');
+  const st=v.scrollTop;
+  let html='';
+  if(!publishedDays().length){
+    if(D.loading) html='<div class="stack"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>';
+    else if(D.lastErr) html='<div class="banner err">Could not load the schedule from BWF ('+esc(String(D.lastErr.message||D.lastErr))+'). Check your connection. <button class="btn ghost" data-act="retry">Try again</button></div>';
+    else html='<div class="card empty">The BWF feed has no matches published for this tournament yet. <button class="btn ghost" data-act="retry">Check again</button></div>';
+    v.innerHTML=html; return;
+  }
+  const ctx=ctxNow();
+  let warn='';
+  if(D.lastErr&&D.lastOk) warn='<div class="banner">Live update failed. Showing data from '+fmtClock(D.lastOk)+'. <button class="btn ghost" data-act="retry">Retry</button></div>';
+  else if(D.lastErr&&!D.lastOk) warn='<div class="banner err">No connection to BWF right now. Showing the last saved schedule from this phone. <button class="btn ghost" data-act="retry">Retry</button></div>';
+  if(S.tab==='me') html=viewMe(ctx); else if(S.tab==='players') html=viewPlayers(ctx); else if(S.tab==='countries') html=viewCountries(ctx); else html=viewVenues(ctx);
+  v.innerHTML=warn+html+'<p class="foot">Times are local Cagliari time. Data comes live from the BWF tournament feed (extranet-lv.bwfbadminton.com), the same source as bwfbadminton.com. Estimated start times are a guess based on how far behind schedule each venue is running right now. Next-round matches appear once the previous round has been played. Nothing here is official; always check the venue boards.</p>';
+  window.scrollTo(0,0);
+  const onChip=v.querySelector('.chip.day.on'); if(onChip&&onChip.scrollIntoView){ try{ onChip.scrollIntoView({inline:'center',block:'nearest'}); }catch(e){} window.scrollTo(0,0); }
+  updHash();
+  if(S.focusSearch){ const i=document.getElementById(S.focusSearch); if(i){ i.focus(); try{ i.setSelectionRange(i.value.length,i.value.length);}catch(e){} } S.focusSearch=null; }
+}
+
+function searchBox(id, placeholder, value, act){
+  return '<div class="search"><input id="'+id+'" type="search" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="'+esc(placeholder)+'" value="'+esc(value||'')+'" aria-label="'+esc(placeholder)+'" data-res="'+id+'-res" data-ract="'+act+'">'+(value?'<button class="clr" data-act="clear" data-for="'+id+'" aria-label="Clear">×</button>':'')+'</div>';
+}
+function searchResults(q, opt){
+  const nq=norm(q); if(nq.length<2) return '';
+  const toks=nq.split(' ');
+  const hits=[];
+  for(const p of D.players.values()){
+    const words=p.k.split(' ');
+    const ok=toks.every(t=>words.some(w=>w.startsWith(t)));
+    if(ok){ hits.push(p); }
+  }
+  hits.sort((a,b)=>{ const ea=a.k===nq?0:1, eb=b.k===nq?0:1; if(ea!==eb) return ea-eb; return a.n.split(' ').pop().localeCompare(b.n.split(' ').pop())||a.n.localeCompare(b.n); });
+  if(!hits.length) return '<div class="empty">No player found for “'+esc(q)+'”. Try the surname only, as written in the draw. Players whose first match is not scheduled yet cannot be found.</div>';
+  return '<div class="list">'+hits.slice(0,25).map(p=>'<button class="prow" data-act="'+(opt.act||'open')+'" data-id="'+p.i+'"><span class="flag">'+(flag(p.c)||'<span class="cc">'+esc(p.c)+'</span>')+'</span><div class="grow"><div class="nm">'+esc(p.n)+'</div><div class="sub">'+esc(cname(p.c))+' · '+[...p.ev].join(', ')+'</div></div>'+(isFollowed(p.i)?'<span class="tiny muted">★</span>':'')+'</button>').join('')+(hits.length>25?'<div class="empty small">'+(hits.length-25)+' more, keep typing…</div>':'')+'</div>';
+}
+
+function nextMatchLine(p, ctx){
+  const ms=matchesOf(p.i).filter(m=>!m.bye);
+  const up=ms.filter(m=>m.st==='N'||m.st==='W'||m.st==='P');
+  if(up.length){ const m=up[0]; const st=statusOf(m,ctx); const opp=(m.a.some(x=>x.i===p.i)?m.b:m.a).map(x=>x.n.split(' ').pop()).join('/');
+    return (st.k==='live'?'<b style="color:var(--live)">LIVE</b> · ':'')+(m.d===ctx.td?'Today':dayLabel(m.d))+' '+m.tm+' · <span class="vchip v-'+m.v+'"><span class="lt">'+m.v+'</span>'+(m.court?'<span>C'+m.court+'</span>':'')+'</span> · '+esc(m.ev)+' '+esc(m.rd)+(opp?' vs '+esc(opp):''); }
+  const last=ms.filter(m=>m.st==='F'||m.st==='O').pop();
+  if(last){ const won=(last.w===1&&last.a.some(x=>x.i===p.i))||(last.w===2&&last.b.some(x=>x.i===p.i)); return 'No more matches scheduled yet · last: '+esc(last.ev)+' '+esc(last.rd)+' '+(won?'won':'lost'); }
+  return 'No matches scheduled yet';
+}
+
+function playerMatches(p, ctx, opt){
+  const ms=matchesOf(p.i); const hl=new Set([p.i]);
+  if(!ms.length) return '<div class="card empty">No scheduled matches found for '+esc(p.n)+' yet.</div>';
+  const g=groupByDay(ms); let html='';
+  for(const d of Object.keys(g).sort()){
+    html+='<div class="dayhead"><h2>'+(d===ctx.td?'Today':dayLabel(d))+'</h2><span class="muted">'+(d===ctx.td?dayLabel(d):'')+'</span></div><div class="stack">'+listWithNow(g[d],ctx,{hl, markMine:true, noFade:false})+'</div>';
+  }
+  return html;
+}
+function nextBanner(p, ctx){
+  const up=matchesOf(p.i).filter(m=>!m.bye&&(m.st==='N'||m.st==='W'||m.st==='P'));
+  if(!up.length) return '';
+  const m=up[0]; const dl=ctx.delays[m.v];
+  if(m.st==='P') return '<div class="next"><b>On court now</b> · '+esc(m.ev)+' '+esc(m.rd)+' in '+esc(CFG.venues[m.v]?CFG.venues[m.v].name:'venue '+m.v)+(m.court?', court '+m.court:'')+'.</div>';
+  if(m.st==='W') return '<div class="next"><b>Warming up now</b> · '+esc(m.ev)+' '+esc(m.rd)+' in '+esc(CFG.venues[m.v]?CFG.venues[m.v].name:'venue '+m.v)+(m.court?', court '+m.court:'')+'.</div>';
+  let txt='<b>Next:</b> '+(m.d===ctx.td?'today':dayLabel(m.d))+' at <b>'+m.tm+'</b>, '+esc(CFG.venues[m.v]?CFG.venues[m.v].name:'venue '+m.v)+(m.court?' court '+m.court:'')+', '+esc(m.ev)+' '+esc(m.rd)+'.';
+  if(m.d===ctx.td&&dl&&dl.est!=null&&dl.est>5){ txt+=' '+esc(CFG.venues[m.v].name)+' is running '+(dl.kind==='bound'?'at least ':'about ')+dl.est+' min behind, so expect it around <b>'+minToHM(Math.max(keyMin(m.t)+dl.est,ctx.nowM))+'</b>.'; }
+  else if(m.d===ctx.td&&dl&&dl.est!=null){ txt+=' '+esc(CFG.venues[m.v].name)+' is running on time.'; }
+  return '<div class="next">'+txt+'</div>';
+}
+
+function viewMe(ctx){
+  let html='';
+  if(!S.me){
+    html+='<div class="hero"><h2>Who are you?</h2><p>Type your name as it appears in the draw. This phone will remember it.</p>'+searchBox('q-me','Your name, e.g. Pedersen',S.q,'setme')+'</div>';
+    html+='<div class="sres" id="q-me-res">'+searchResults(S.q,{act:'setme'})+'</div>';
+    if(S.follow.length) html+=followSection(ctx);
+    return html;
+  }
+  const p=playerFromIndex(S.me);
+  html+='<div class="card">'+playerHead(p)+'<div class="row" style="margin-top:10px;flex-wrap:wrap"><button class="btn" data-act="share" data-id="'+p.i+'" data-name="'+esc(p.n)+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg>Share</button><button class="btn" data-act="notme">Not me / change</button></div></div>';
+  const nb=nextBanner(p,ctx); if(nb) html+='<div style="margin-top:10px">'+nb+'</div>';
+  html+=playerMatches(p,ctx);
+  html+=followSection(ctx);
+  return html;
+}
+function followSection(ctx){
+  let html='<h2 style="margin-top:22px">Following</h2>';
+  if(!S.follow.length) return html+'<div class="card small muted">Search for friends under <b>Players</b> and tap ★ to see their next matches here.</div>';
+  html+='<div class="list">'+S.follow.map(f=>{ const p=playerFromIndex(f); return '<button class="prow" data-act="open" data-id="'+p.i+'"><span class="flag">'+(flag(p.c)||'')+'</span><div class="grow"><div class="nm">'+esc(p.n)+'</div><div class="sub">'+nextMatchLine(p,ctx)+'</div></div><span class="muted">›</span></button>'; }).join('')+'</div>';
+  return html;
+}
+function viewPlayers(ctx){
+  if(S.player){
+    const p=playerFromIndex(S.player); const fol=isFollowed(p.i);
+    let html='<div class="row" style="margin-bottom:8px"><button class="btn ghost" data-act="back">‹ Search</button></div>';
+    html+='<div class="card">'+playerHead(p)+'<div class="row" style="margin-top:10px;flex-wrap:wrap"><button class="btn'+(fol?' primary':'')+'" data-act="follow" data-id="'+p.i+'">'+(fol?'★ Following':'☆ Follow')+'</button><button class="btn" data-act="share" data-id="'+p.i+'" data-name="'+esc(p.n)+'">Share</button>'+(S.me&&S.me.i===p.i?'':'<button class="btn ghost" data-act="setme" data-id="'+p.i+'">This is me</button>')+'</div></div>';
+    const nb=nextBanner(p,ctx); if(nb) html+='<div style="margin-top:10px">'+nb+'</div>';
+    html+=playerMatches(p,ctx);
+    return html;
+  }
+  let html='<h2>Find a player</h2>'+searchBox('q-players','Name, e.g. Christensen',S.q,'open');
+  html+='<div class="sres" id="q-players-res">'+searchResults(S.q,{act:'open'})+'</div>';
+  if(norm(S.q).length<2){
+    html+=followSection(ctx);
+    html+='<p class="small muted" style="margin-top:14px">'+D.players.size+' players in the schedule so far. Search works on any part of the name and ignores accents.</p>';
+  }
+  return html;
+}
+function viewCountries(ctx){
+  const cs=[...D.countries.entries()].sort((a,b)=>b[1]-a[1]);
+  const mine=S.me&&S.me.c;
+  const ordered=mine&&D.countries.has(mine)?[[mine,D.countries.get(mine)]].concat(cs.filter(c=>c[0]!==mine)):cs;
+  let html='';
+  if(!S.country||!D.countries.has(S.country)){
+    html+='<h2>Pick a country</h2><p class="small muted" style="margin:-4px 0 10px">All matches of that country, day by day, with venue and court. The number is how many player entries are in the schedule.</p>';
+    html+='<div class="cgrid">'+ordered.map(([cc,n])=>'<button class="chip" data-act="country" data-cc="'+cc+'"><span class="flag" style="width:auto">'+(flag(cc)||'')+'</span> '+esc(cname(cc))+'<span class="n">'+Math.round(n)+'</span></button>').join('')+'</div>';
+    return html;
+  }
+  const pd=publishedDays(); const td=ctx.td;
+  if(!S.cday||!CFG.days.includes(S.cday)) S.cday=pd.includes(td)?td:(pd.filter(d=>d>=td)[0]||pd[pd.length-1]||td);
+  html+='<div class="row" style="margin:2px 0 8px"><span class="flag" style="font-size:26px;width:32px">'+(flag(S.country)||'')+'</span><h2 style="margin:0" class="grow">'+esc(cname(S.country))+'</h2><button class="btn" data-act="country" data-cc="">Change</button></div>';
+  html+=dayChips(CFG.days, S.cday, 'cday', ctx);
+  const ms=matchesOfCountry(S.country,S.cday);
+  const live=ms.filter(m=>m.st==='P'||m.st==='W').length, up=ms.filter(m=>m.st==='N'&&!m.bye).length;
+  html+='<div class="row" style="margin:4px 0 10px;flex-wrap:wrap;gap:8px"><div class="seg"><button class="'+(S.cfilter==='all'?'on':'')+'" data-act="cfilter" data-f="all">All '+ms.length+'</button><button class="'+(S.cfilter==='up'?'on':'')+'" data-act="cfilter" data-f="up">Upcoming '+up+'</button><button class="'+(S.cfilter==='live'?'on':'')+'" data-act="cfilter" data-f="live">Live '+live+'</button><button class="'+(S.cfilter==='done'?'on':'')+'" data-act="cfilter" data-f="done">Finished</button></div></div>';
+  let f=ms;
+  if(S.cfilter==='up') f=ms.filter(m=>m.st==='N'&&!m.bye); else if(S.cfilter==='live') f=ms.filter(m=>m.st==='P'||m.st==='W'); else if(S.cfilter==='done') f=ms.filter(m=>m.st==='F'||m.st==='O');
+  if(!ms.length) html+='<div class="card empty">No matches for '+esc(cname(S.country))+' on '+dayLabel(S.cday)+(D.days[S.cday]&&D.days[S.cday].m.length?'.':' — the schedule for this day is not published yet.')+'</div>';
+  else if(!f.length) html+='<div class="card empty">Nothing in this filter.</div>';
+  else { const hl=new Set(); for(const m of f){ for(const p of m.a.concat(m.b)){ if(p.c===S.country) hl.add(p.i);} } html+='<div class="stack">'+listWithNow(f,ctx,{hl})+'</div>'; }
+  return html;
+}
+function dayChips(days, sel, act, ctx){
+  return '<div class="chips">'+days.map(d=>{ const l=dayLabel(d,'short'); const has=D.days[d]&&D.days[d].m.length; return '<button class="chip day'+(sel===d?' on':'')+(has?'':' nodata')+'" data-act="'+act+'" data-d="'+d+'"><b>'+l.dn+'</b><span>'+(d===ctx.td?'Today':l.wd)+'</span></button>'; }).join('')+'</div>';
+}
+function viewVenues(ctx){
+  const td=ctx.td; const day=D.days[td]; const ms=day?day.m:[];
+  let html='<h2>Venues · today</h2><p class="small muted" style="margin:-4px 0 10px">Delay is estimated from the matches on court right now: their scheduled time versus when they actually started.</p><div class="stack">';
+  for(const v in CFG.venues){
+    const cfg=CFG.venues[v]; const d=ctx.delays[v]; const dt=delayText(d);
+    const vm=ms.filter(m=>m.v===v&&!m.bye);
+    html+='<section class="card vcard v-'+v+'"><div class="vtitle"><span class="lt">'+v+'</span><span class="nm">'+esc(cfg.name)+'</span><span class="muted small">· courts '+cfg.courts[0]+'–'+cfg.courts[cfg.courts.length-1]+(cfg.place?' · '+esc(cfg.place):'')+'</span></div>';
+    html+='<div class="delay '+dt.cls+'"><span class="big">'+esc(dt.big)+'</span> <span class="muted" style="font-weight:500">'+esc(dt.txt)+'</span></div>';
+    if(d&&d.tot){ html+='<div class="tiny muted" style="margin:-6px 0 10px">'+d.fin+' of '+d.tot+' matches finished · '+d.on+' on court</div>'; }
+    html+='<div class="courts">';
+    for(const c of cfg.courts){
+      const cur=vm.find(m=>m.court===c&&(m.st==='P'||m.st==='W'));
+      const nxt=vm.filter(m=>m.court===c&&m.st==='N')[0];
+      const remaining=vm.some(m=>m.st==='N');
+      html+='<div class="ct"><div class="cn"><span>Court '+c+'</span>'+(cur?'<span class="st'+(cur.st==='W'?' warm':'')+'">'+(cur.st==='W'?'Warm-up':'Live'+(cur.du?' '+cur.du+"'":''))+'</span>':'<span class="st free">'+(nxt?'Next '+nxt.tm:remaining?'Free':'Done')+'</span>')+'</div>';
+      if(cur){ html+='<div class="who">'+esc(cur.ev)+' '+esc(cur.rd)+'</div><div class="who dim">'+esc(cur.a.map(p=>p.n.split(' ').pop()).join('/'))+' v '+esc(cur.b.map(p=>p.n.split(' ').pop()).join('/'))+'</div>'+(cur.sc.length?'<div class="sc">'+cur.sc.map(s=>s[0]+'-'+s[1]).join('  ')+'</div>':''); }
+      else if(nxt){ html+='<div class="who dim">'+esc(nxt.ev)+' '+esc(nxt.rd)+' · '+esc(nxt.a.map(p=>p.n.split(' ').pop()).join('/'))+' v '+esc(nxt.b.map(p=>p.n.split(' ').pop()).join('/'))+'</div>'; }
+      else html+='<div class="who dim">'+(remaining?'Next match not called yet':'No more matches today')+'</div>';
+      html+='</div>';
+    }
+    html+='</div>';
+    const unassigned=vm.filter(m=>!m.court&&(m.st==='P'||m.st==='W'));
+    if(unassigned.length) html+='<div class="tiny muted" style="margin-top:8px">'+unassigned.length+' more match'+(unassigned.length===1?'':'es')+' on court without a court number in the feed.</div>';
+    const upcoming=vm.filter(m=>m.st==='N').slice(0,4);
+    if(upcoming.length){ html+='<div style="margin-top:10px"><div class="ev" style="margin-bottom:6px">Next up in '+esc(cfg.name)+'</div><div class="stack">'+upcoming.map(m=>matchCard(m,ctx,{foot:false})).join('')+'</div></div>'; }
+    html+='</section>';
+  }
+  html+='</div>';
+  if(!ms.length) html+='<div class="card empty" style="margin-top:12px">No matches scheduled today'+(td<CFG.days[0]?' — the tournament starts '+dayLabel(CFG.days[0])+'.':td>CFG.days[CFG.days.length-1]?' — the tournament is over.':'.')+'</div>';
+  return html;
+}
+
+/* ---------- hash / sharing ---------- */
+function updHash(){
+  let h='';
+  if(S.tab==='players'&&S.player) h='#p='+S.player.i;
+  else if(S.tab==='countries'&&S.country) h='#c='+S.country;
+  else if(S.tab==='venues') h='#venues';
+  else if(S.tab==='players') h='#players';
+  else h='';
+  try{ if(location.hash!==h) history.replaceState(null,'',location.pathname+location.search+h); }catch(e){}
+}
+function readHash(){
+  const h=(location.hash||'').slice(1);
+  if(!h) return;
+  const m=/^p=(\d+)$/.exec(h); if(m){ S.tab='players'; S.pendingPlayer=m[1]; return; }
+  const c=/^c=([A-Z]{3})$/.exec(h); if(c){ S.tab='countries'; S.country=c[1]; return; }
+  if(h==='venues') S.tab='venues'; else if(h==='players') S.tab='players'; else if(h==='me') S.tab='me';
+}
+function shareUrl(id){ const base=(window.SHARE_BASE||(location.origin+location.pathname)); return base+'#p='+id; }
+async function share(id,name){
+  const url=shareUrl(id); const text='Matches for '+name+' at the European Senior Championships 2026';
+  try{ if(navigator.share){ await navigator.share({title:text,text:text,url:url}); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
+  try{ await navigator.clipboard.writeText(url); toast('Link copied'); }catch(e){ prompt('Copy this link', url); }
+}
+let toastT=null;
+function toast(msg){ let t=document.querySelector('.toast'); if(!t){ t=document.createElement('div'); t.className='toast'; document.body.appendChild(t);} t.textContent=msg; clearTimeout(toastT); toastT=setTimeout(()=>t.remove(),1800); }
+
+/* ---------- events ---------- */
+document.querySelector('.tabbar').addEventListener('click',e=>{
+  const b=e.target.closest('.tab'); if(!b) return;
+  if(S.tab===b.dataset.tab&&S.tab==='players'){ S.player=null; }
+  S.tab=b.dataset.tab; store.set('tab',S.tab); S.q=''; render();
+});
+document.getElementById('refresh').addEventListener('click',()=>load({force:true}));
+document.getElementById('view').addEventListener('input',e=>{
+  if(e.target.tagName!=='INPUT') return;
+  S.q=e.target.value; const id=e.target.id;
+  // re-render results only, keep the input
+  const box=e.target.closest('.search'); const res=document.getElementById(e.target.dataset.res);
+  if(res){ res.innerHTML=searchResults(S.q,{act:e.target.dataset.ract||'open'}); }
+  const clr=box.querySelector('.clr'); if(S.q&&!clr){ const b=document.createElement('button'); b.className='clr'; b.dataset.act='clear'; b.dataset.for=id; b.setAttribute('aria-label','Clear'); b.textContent='×'; box.appendChild(b);} else if(!S.q&&clr) clr.remove();
+});
+document.getElementById('view').addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  const act=b.dataset.act, id=b.dataset.id;
+  const pick=()=>{ const p=D.players.get(id); return p?{i:p.i,n:p.n,c:p.c}:null; };
+  if(act==='setme'){ const p=pick(); if(p){ S.me=p; store.set('me',p); S.q=''; S.tab='me'; store.set('tab','me'); toast('Saved as you'); render(); } }
+  else if(act==='notme'){ S.me=null; store.del('me'); S.q=''; S.focusSearch='q-me'; render(); }
+  else if(act==='open'){ const p=pick(); if(p){ S.player=p; S.tab='players'; store.set('tab','players'); render(); } }
+  else if(act==='back'){ S.player=null; S.focusSearch='q-players'; render(); }
+  else if(act==='follow'){ const p=pick(); if(!p) return; if(isFollowed(p.i)) S.follow=S.follow.filter(x=>x.i!==p.i); else S.follow.push(p); store.set('follow',S.follow); render(); }
+  else if(act==='share'){ share(id,b.dataset.name||''); }
+  else if(act==='country'){ S.country=b.dataset.cc||null; store.set('country',S.country); render(); }
+  else if(act==='cday'){ S.cday=b.dataset.d; S.cfilter='all'; render(); }
+  else if(act==='cfilter'){ S.cfilter=b.dataset.f; render(); }
+  else if(act==='clear'){ S.q=''; S.focusSearch=b.dataset.for; render(); }
+  else if(act==='retry'){ load({force:true}); }
+});
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'){ if(Date.now()-D.lastOk>45000) load(); else render({bg:true}); } });
+setInterval(()=>{ if(document.visibilityState==='visible'){ if(Date.now()-(D.lastOk||0)>CFG.refreshMs) load(); else if(S.dirty===false) { /* keep clocks fresh */ render({bg:true}); } } }, 60000);
+window.addEventListener('hashchange',()=>{ readHash(); resolvePending(); render(); });
+function resolvePending(){ if(S.pendingPlayer){ const p=D.players.get(S.pendingPlayer); if(p){ S.player={i:p.i,n:p.n,c:p.c}; S.pendingPlayer=null; } } }
+
+/* ---------- boot ---------- */
+readHash();
+bootFromCache();
+resolvePending();
+render();
+load().then(()=>{ resolvePending(); render({bg:true}); });
+})();
+</script>
+</body>
+</html>
