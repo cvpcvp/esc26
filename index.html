@@ -710,6 +710,7 @@ function viewVenues(ctx){
 /* ---------- draws (brackets) ---------- */
 const DRAW_API='https://extranet-lv.bwfbadminton.com/api/';
 const SECTION=16; // first-round slots per swipeable section
+const DRAW_V=2; // bump when the compact draw format changes so old cached draws are ignored
 async function loadDrawList(){
   if(D.drawList) return D.drawList;
   const c=store.get('drawlist'); if(c&&c.at&&Date.now()-c.at<6*3600000&&c.list){ D.drawList=c.list; return c.list; }
@@ -736,12 +737,12 @@ function compactDraw(res){
   out.sort((x,y)=>x.c-y.c||x.r-y.r);
   const cols=out.length?Math.max(...out.map(m=>m.c))+1:0;
   const n0=out.filter(m=>m.c===0).length;
-  return {m:out, cols, rounds, n0};
+  return {m:out, cols, rounds, n0, v:DRAW_V};
 }
 async function loadDraw(id, force){
   const cur=D.draws[id];
   if(cur&&!force&&Date.now()-cur.at<10*60000) return cur;
-  if(!cur){ const c=store.get('draw:'+id); if(c&&c.m){ D.draws[id]=c; if(!force&&Date.now()-c.at<10*60000) return c; } }
+  if(!cur){ const c=store.get('draw:'+id); if(c&&c.m&&c.v===DRAW_V){ D.draws[id]=c; if(!force&&Date.now()-c.at<10*60000) return c; } else if(c) store.del('draw:'+id); }
   if(D.drawBusy[id]) return D.drawBusy[id];
   D.drawBusy[id]=(async()=>{
     try{
@@ -764,11 +765,12 @@ function playerPosition(d,pid){ // the highest-round match containing the player
 // sections: a big draw is split into swipeable parts of SECTION first-round slots each, plus a "Finals" part where they meet
 function drawParts(d){
   if(!d||!d.cols) return [];
-  if(d.n0<=SECTION) return [{key:'all', label:'Whole draw', c0:0, c1:d.cols-1, r0:0, n:d.n0}];
+  const n0=d.n0!=null?d.n0:(d.m||[]).filter(m=>m.c===0).length; // tolerate a cached draw without n0
+  if(n0<=SECTION) return [{key:'all', label:'Whole draw', c0:0, c1:d.cols-1, r0:0, n:n0}];
   const depth=Math.log2(SECTION); // columns inside a part: c0 .. c0+depth
-  const parts=[]; const nParts=Math.ceil(d.n0/SECTION);
+  const parts=[]; const nParts=Math.ceil(n0/SECTION);
   for(let i=0;i<nParts;i++) parts.push({key:'p'+i, label:'Part '+(i+1), c0:0, c1:Math.min(depth,d.cols-1), r0:i*SECTION, n:SECTION});
-  if(d.cols-1>depth) parts.push({key:'finals', label:'Finals', c0:depth, c1:d.cols-1, r0:0, n:d.n0/Math.pow(2,depth)});
+  if(d.cols-1>depth) parts.push({key:'finals', label:'Finals', c0:depth, c1:d.cols-1, r0:0, n:n0/Math.pow(2,depth)});
   return parts;
 }
 function partOfMatch(d,parts,m){ // which part shows match m: its section, or Finals for rounds past the sections
@@ -814,7 +816,10 @@ function viewDraw(ctx){
     return html;
   }
   if(!d.cols){ html+='<div class="card empty">This event is played in groups, not a knock-out draw. Group play is not shown here yet.</div>'; return html; }
+  // a draw on screen for more than 10 minutes is refreshed quietly, so newly decided next-round names appear
+  if(Date.now()-(d.at||0)>10*60000&&!D.drawBusy[S.draw.id]) loadDraw(S.draw.id).then(()=>render({bg:true})).catch(()=>{});
   const parts=drawParts(d);
+  if(!parts.length){ html+='<div class="card empty">The draw has no matches yet.</div>'; return html; }
   const pid=S.draw.pid; const pos=pid?playerPosition(d,pid):null;
   if(!S.draw.part||!parts.some(p=>p.key===S.draw.part)){
     const pm=pos?pos.m:null; const part=pm?partOfMatch(d,parts,pm):(parts.find(p=>p.key!=='finals')||parts[0]);
