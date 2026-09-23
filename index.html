@@ -230,7 +230,7 @@ h3{font:600 15px/1.2 "Barlow",system-ui,sans-serif;margin:0 0 6px}
 .onrow .sc{font:600 14px/1 "Barlow Condensed",system-ui,sans-serif;color:var(--ink2);margin-left:6px;white-space:nowrap}
 /* tab bar */
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
-.tabbar-in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);height:var(--tab-h)}
+.tabbar-in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr);height:var(--tab-h)}
 .tab{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--ink2);font-size:10px;font-weight:600;letter-spacing:.2px;text-transform:uppercase;padding:0 2px}
 .tab svg{width:22px;height:22px}
 .tab.on{color:var(--accent)}
@@ -244,6 +244,47 @@ h3{font:600 15px/1.2 "Barlow",system-ui,sans-serif;margin:0 0 6px}
 .toast{position:fixed;left:50%;bottom:calc(var(--tab-h) + env(safe-area-inset-bottom,0px) + 14px);transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:999px;font-size:13px;font-weight:600;z-index:40;box-shadow:var(--shadow)}
 .skel{height:64px;border-radius:14px;background:linear-gradient(90deg,var(--surface2),var(--surface),var(--surface2));background-size:200% 100%;animation:sh 1.2s infinite}
 @keyframes sh{to{background-position:-200% 0}}
+@media (max-width:370px){.tab{font-size:9px;letter-spacing:0}.tab svg{width:20px;height:20px}}
+
+/* stats */
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.tag{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:3px 8px 3px 6px;background:var(--hl);color:var(--ink);font-size:11px;font-weight:700;letter-spacing:.2px;line-height:1.2}
+.tag svg{width:12px;height:12px;flex:0 0 auto}
+.tag.sm{font-size:10px;padding:2px 6px 2px 5px}
+.prow .tags{margin-top:3px}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 10px}
+.kpis.k2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.kpi .v{font:700 26px/1.05 "Barlow Condensed",system-ui,sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap}
+.kpi .v small{font-size:15px;font-weight:600;color:var(--ink2);margin-left:2px}
+.kpi .l{font-size:12px;color:var(--ink2);line-height:1.2;margin-top:2px}
+.kpi .s{font-size:11px;color:var(--ink3);margin-top:1px}
+.shead{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
+.shead .ev{flex:1}
+.lb .prow{padding:8px 10px;gap:8px}
+.lb .rk{min-width:20px;text-align:right;font:700 15px/1 "Barlow Condensed",system-ui,sans-serif;color:var(--ink3);flex:0 0 auto;white-space:nowrap}
+.lb .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb .val{font:700 18px/1 "Barlow Condensed",system-ui,sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lb .val small{font-size:12px;font-weight:600;color:var(--ink2);margin-left:2px}
+.lb .me .nm{background:var(--hl);border-radius:4px;padding:0 3px;display:inline}
+.rec{display:grid;grid-template-columns:60px 1fr;gap:10px;padding:9px 0;border-top:1px solid var(--line);align-items:start}
+.ev+.rec,.small+.rec{border-top:0}
+.rec .rv{font:700 22px/1 "Barlow Condensed",system-ui,sans-serif;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.rec .rv small{display:block;font-size:11px;font-weight:600;color:var(--ink2);margin-top:2px;white-space:normal}
+.rec .who{font-size:14px;line-height:1.3}
+.rec .who .mine{background:var(--hl);border-radius:4px;padding:0 2px}
+.rec .scr{font:600 14px/1.2 "Barlow Condensed",system-ui,sans-serif;color:var(--ink2);font-variant-numeric:tabular-nums;margin-top:2px}
+.stbl{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.stbl th{font-weight:600;color:var(--ink2);font-size:11px;text-transform:uppercase;letter-spacing:.3px;text-align:right;padding:0 4px 6px;vertical-align:bottom;line-height:1.2}
+.stbl th:first-child,.stbl td:first-child{text-align:left;padding-left:0}
+.stbl td{text-align:right;padding:6px 4px;border-top:1px solid var(--line);white-space:nowrap}
+.stbl td:last-child,.stbl th:last-child{padding-right:0}
+.stbl tr.hi td{font-weight:700}
+.stbl tr.tap{cursor:pointer}
+.stbl tr.tap:active td{background:var(--surface2)}
+.stbl .cn{display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
+.medals{display:flex;gap:14px;font:700 18px/1 "Barlow Condensed",system-ui,sans-serif;font-variant-numeric:tabular-nums}
+.more{display:block;width:100%;margin-top:8px;text-align:center}
 </style>
 
 </head>
@@ -262,6 +303,7 @@ h3{font:600 15px/1.2 "Barlow",system-ui,sans-serif;margin:0 0 6px}
   <button class="tab" data-tab="countries" id="tab-countries"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V4"/><path d="M4 4h13l-2 4 2 4H4"/></svg>Countries</button>
   <button class="tab" data-tab="venues" id="tab-venues"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V8l7-4 7 4v13"/><path d="M9 21v-6h6v6"/></svg>Venues</button>
   <button class="tab" data-tab="draws" id="tab-draws"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h5v4H3zM3 15h5v4H3zM16 10h5v4h-5z"/><path d="M8 7h3v10H8M11 12h5"/></svg>Draws</button>
+  <button class="tab" data-tab="stats" id="tab-stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16"/><path d="M7 16v-5"/><path d="M12 16V6"/><path d="M17 16v-8"/></svg>Stats</button>
 </div></nav>
 
 <script>
@@ -372,7 +414,7 @@ async function fetchDay(date){
   return compact(arr,date);
 }
 function rebuildIndex(){
-  D.players=new Map(); D.countries=new Map(); D.byCode=new Map();
+  D.players=new Map(); D.countries=new Map(); D.byCode=new Map(); D.ver=(D.ver||0)+1; // ver invalidates the stats cache
   for(const date of CFG.days){
     const day=D.days[date]; if(!day) continue;
     for(const m of day.m){
@@ -435,6 +477,8 @@ const S = {
   country: store.get('country',null),
   cday: null, cfilter:'all',
   q:'', player:null, // player view inside Players tab
+  from:null, fromY:0, // tab a player page was opened from (stats or countries), so Back returns there
+  sage:0, smore:{}, // Stats tab: age group filter and which lists are expanded
   pday: {}
 };
 function isFollowed(id){ return S.follow.some(p=>p.i===id); }
@@ -531,7 +575,7 @@ function listWithNow(ms, ctx, opt){
 function ctxNow(){ const td=today(); return {td, nowM:keyMin(romeNow()), delays:venueDelays()}; }
 function groupByDay(ms){ const g={}; for(const m of ms){ (g[m.d]=g[m.d]||[]).push(m); } return g; }
 function playerHead(p){
-  return '<div class="mehead"><span class="flag">'+(flag(p.c)||'')+'</span><div class="grow"><div class="big">'+esc(p.n)+'</div><div class="small muted">'+esc(cname(p.c))+(p.ev&&p.ev.size?' · '+[...p.ev].join(', '):'')+'</div></div></div>';
+  return '<div class="mehead"><span class="flag">'+(flag(p.c)||'')+'</span><div class="grow"><div class="big">'+esc(p.n)+'</div><div class="small muted">'+esc(cname(p.c))+(p.ev&&p.ev.size?' · '+[...p.ev].join(', '):'')+'</div></div></div>'+tagsHtml(p.i);
 }
 function playerFromIndex(p){ const e=D.players.get(p.i); return e||{i:p.i,n:p.n,c:p.c,ev:new Set()}; }
 
@@ -558,7 +602,7 @@ function render(opts){
   if(D.lastErr&&D.lastOk) warn='<div class="banner">Live update failed. Showing data from '+fmtClock(D.lastOk)+'. <button class="btn ghost" data-act="retry">Retry</button></div>';
   else if(D.lastErr&&!D.lastOk) warn='<div class="banner err">No connection to BWF right now. Showing the last saved schedule from this phone. <button class="btn ghost" data-act="retry">Retry</button></div>';
   if(S.draw) html=viewDraw(ctx);
-  else if(S.tab==='me') html=viewMe(ctx); else if(S.tab==='players') html=viewPlayers(ctx); else if(S.tab==='countries') html=viewCountries(ctx); else if(S.tab==='draws') html=viewDraws(ctx); else if(S.tab==='stats') html=viewStats(ctx); else html=viewVenues(ctx);
+  else if(S.tab==='me') html=viewMe(ctx); else if(S.tab==='players') html=viewPlayers(ctx); else if(S.tab==='countries') html=viewCountries(ctx); else if(S.tab==='draws') html=viewDraws(ctx); else if(S.tab==='stats') html=viewStatsPage(ctx); else if(S.tab==='usage') html=viewUsage(ctx); else html=viewVenues(ctx);
   v.innerHTML=warn+html+'<p class="foot">Times are local Cagliari time. Data comes live from the BWF tournament feed (extranet-lv.bwfbadminton.com), the same source as bwfbadminton.com. Estimated start times are a guess based on how far behind schedule each venue is running right now. Next-round matches appear once the previous round has been played. Nothing here is official; always check the venue boards. <span id="usage">'+usageText()+'</span></p>';
   if(S.draw){ const br=document.getElementById('bracket'); if(br&&keep&&S.draw.keepLeft!=null){ br.scrollLeft=S.draw.keepLeft; } }
   if(keep){ window.scrollTo(0,y); if(S.draw) afterDrawRender(); }
@@ -585,7 +629,7 @@ function searchResults(q, opt){
   }
   hits.sort((a,b)=>{ const ea=a.k===nq?0:1, eb=b.k===nq?0:1; if(ea!==eb) return ea-eb; return a.n.split(' ').pop().localeCompare(b.n.split(' ').pop())||a.n.localeCompare(b.n); });
   if(!hits.length) return '<div class="empty">No player found for “'+esc(q)+'”. Try the surname only, as written in the draw. Players whose first match is not scheduled yet cannot be found.</div>';
-  return '<div class="list">'+hits.slice(0,25).map(p=>'<button class="prow" data-act="'+(opt.act||'open')+'" data-id="'+p.i+'"><span class="flag">'+flag(p.c)+'</span><div class="grow"><div class="nm">'+esc(p.n)+'</div><div class="sub">'+esc(cname(p.c))+' · '+[...p.ev].join(', ')+'</div></div>'+(isFollowed(p.i)?'<span class="tiny muted">★</span>':'')+'</button>').join('')+(hits.length>25?'<div class="empty small">'+(hits.length-25)+' more, keep typing…</div>':'')+'</div>';
+  return '<div class="list">'+hits.slice(0,25).map(p=>'<button class="prow" data-act="'+(opt.act||'open')+'" data-id="'+p.i+'"><span class="flag">'+flag(p.c)+'</span><div class="grow"><div class="nm">'+esc(p.n)+'</div><div class="sub">'+esc(cname(p.c))+' · '+[...p.ev].join(', ')+'</div>'+tagsHtml(p.i,true)+'</div>'+(isFollowed(p.i)?'<span class="tiny muted">★</span>':'')+'</button>').join('')+(hits.length>25?'<div class="empty small">'+(hits.length-25)+' more, keep typing…</div>':'')+'</div>';
 }
 
 function nextMatchLine(p, ctx){
@@ -638,6 +682,7 @@ function viewMe(ctx){
   const p=playerFromIndex(S.me);
   html+='<div class="card">'+playerHead(p)+'<div class="row" style="margin-top:10px;flex-wrap:wrap"><button class="btn" data-act="share" data-id="'+p.i+'" data-name="'+esc(p.n)+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg>Share</button><button class="btn" data-act="notme">Not me / change</button></div></div>';
   const nb=nextBanner(p,ctx); if(nb) html+='<div style="margin-top:10px">'+nb+'</div>';
+  html+=playerStatsCard(p);
   html+=drawButtons(p);
   html+=playerMatches(p,ctx);
   html+=followSection(ctx);
@@ -650,15 +695,16 @@ function madeBy(){ // small credit at the bottom of the Me page; the name opens 
 function followSection(ctx){
   let html='<h2 style="margin-top:22px">Following</h2>';
   if(!S.follow.length) return html+'<div class="card small muted">Search for friends under <b>Players</b> and tap ★ to see their next matches here.</div>';
-  html+='<div class="list">'+S.follow.map(f=>{ const p=playerFromIndex(f); return '<button class="prow" data-act="open" data-id="'+p.i+'"><span class="flag">'+(flag(p.c)||'')+'</span><div class="grow"><div class="nm">'+esc(p.n)+'</div><div class="sub">'+nextMatchLine(p,ctx)+'</div></div><span class="muted">›</span></button>'; }).join('')+'</div>';
+  html+='<div class="list">'+S.follow.map(f=>{ const p=playerFromIndex(f); return '<button class="prow" data-act="open" data-id="'+p.i+'"><span class="flag">'+(flag(p.c)||'')+'</span><div class="grow"><div class="nm">'+esc(p.n)+'</div><div class="sub">'+nextMatchLine(p,ctx)+'</div>'+tagsHtml(p.i,true)+'</div><span class="muted">›</span></button>'; }).join('')+'</div>';
   return html;
 }
 function viewPlayers(ctx){
   if(S.player){
     const p=playerFromIndex(S.player); const fol=isFollowed(p.i);
-    let html='<div class="row" style="margin-bottom:8px"><button class="btn ghost" data-act="back">‹ Search</button></div>';
+    let html='<div class="row" style="margin-bottom:8px"><button class="btn ghost" data-act="back">'+(S.from==='stats'?'‹ Stats':S.from==='countries'?'‹ '+esc(cname(S.country)):'‹ Search')+'</button></div>';
     html+='<div class="card">'+playerHead(p)+'<div class="row" style="margin-top:10px;flex-wrap:wrap"><button class="btn'+(fol?' primary':'')+'" data-act="follow" data-id="'+p.i+'">'+(fol?'★ Following':'☆ Follow')+'</button><button class="btn" data-act="share" data-id="'+p.i+'" data-name="'+esc(p.n)+'">Share</button>'+(S.me&&S.me.i===p.i?'':'<button class="btn ghost" data-act="setme" data-id="'+p.i+'">This is me</button>')+'</div></div>';
     const nb=nextBanner(p,ctx); if(nb) html+='<div style="margin-top:10px">'+nb+'</div>';
+    html+=playerStatsCard(p);
     html+=drawButtons(p);
     html+=playerMatches(p,ctx);
     return html;
@@ -684,6 +730,7 @@ function viewCountries(ctx){
   const pd=publishedDays(); const td=ctx.td;
   if(!S.cday||!CFG.days.includes(S.cday)) S.cday=pd.includes(td)?td:(pd.filter(d=>d>=td)[0]||pd[pd.length-1]||td);
   html+='<div class="row" style="margin:2px 0 8px"><span class="flag" style="font-size:26px;width:32px">'+(flag(S.country)||'')+'</span><h2 style="margin:0" class="grow">'+esc(cname(S.country))+'</h2><button class="btn" data-act="country" data-cc="">Change</button></div>';
+  html+=countryStatsCard(S.country);
   html+=dayChips(CFG.days, S.cday, 'cday', ctx);
   const ms=matchesOfCountry(S.country,S.cday);
   const live=ms.filter(m=>m.st==='P'||m.st==='W').length, up=ms.filter(m=>m.st==='N'&&!m.bye).length;
@@ -722,6 +769,204 @@ function viewVenues(ctx){
   html+='</div>';
   if(!ms.length) html+='<div class="card empty" style="margin-top:12px">No matches scheduled today'+(td<CFG.days[0]?' — the tournament starts '+dayLabel(CFG.days[0])+'.':td>CFG.days[CFG.days.length-1]?' — the tournament is over.':'.')+'</div>';
   return html;
+}
+
+/* ---------- stats: worked out on the phone from the day feeds that are already loaded ---------- */
+// Counted: finished matches with both sides and a score. Walkovers are left out. A retired match counts for the players'
+// totals but not for the match records (longest, shortest, one-sided). In doubles both partners get the minutes and points.
+const MEDAL_ROUNDS={SF:'SF', Final:'Final', F:'Final'};
+const TROPHY='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 6h3v1a3 3 0 0 1-3 3M7 6H4v1a3 3 0 0 0 3 3"/></svg>';
+const BOARDS=[
+  {k:'min', t:'Minutes on court', tag:'Most minutes on court', u:'min'},
+  {k:'mt', t:'Matches played', tag:'Most matches played', u:''},
+  {k:'w', t:'Wins', tag:'Most wins', u:''},
+  {k:'pts', t:'Points played', tag:'Most points played', u:''},
+  {k:'g3', t:'Three-game matches', tag:'Most three-game matches', u:''}
+];
+function ageOf(ev){ const m=/(\d+)\s*$/.exec(ev||''); return m?+m[1]:0; }
+function isPlayed(m){ return (m.st==='F'||m.st==='O')&&!m.bye&&m.a.length>0&&m.b.length>0&&m.sc.length>0&&m.ss!=='Walkover'; }
+function isClean(m){ return isPlayed(m)&&m.ss==='Normal'&&m.du>0; }
+function ptsOf(m){ let s=0; for(const g of m.sc) s+=(+g[0]||0)+(+g[1]||0); return s; }
+function surname(n){ const w=(n||'').split(' '); const up=w.filter(x=>x.length>1&&x===x.toUpperCase()&&x!==x.toLowerCase()); return up.length?up.join(' '):w[w.length-1]; }
+function fmtN(n){ return Math.round(n).toLocaleString('en-GB'); }
+function ordinal(n){ if(!n) return '–'; const s=['th','st','nd','rd'], v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); }
+function scoreTxt(m){ return m.sc.map(g=>g[0]+'-'+g[1]).join('  '); }
+function kpi(v,l,s){ return '<div class="kpi"><div class="v">'+v+'</div><div class="l">'+l+'</div>'+(s?'<div class="s">'+s+'</div>':'')+'</div>'; }
+let SC={ver:-1, map:{}};
+function stats(age){ // cached until the day data changes
+  if(SC.ver!==D.ver) SC={ver:D.ver, map:{}};
+  const k=String(age||0); if(!SC.map[k]) SC.map[k]=computeStats(age||0);
+  return SC.map[k];
+}
+function computeStats(age){
+  const P=new Map(), C=new Map(), AG=new Map(); const played=[]; let min=0, points=0;
+  const all=allMatches();
+  for(const m of all){
+    if(age&&ageOf(m.ev)!==age) continue;
+    if(!isPlayed(m)) continue;
+    played.push(m);
+    const tp=ptsOf(m), du=m.du>0?m.du:0; min+=du; points+=tp;
+    const g3=m.sc.length>=3;
+    [m.a,m.b].forEach((side,s)=>{
+      const won=m.w===s+1, lost=m.w===2-s;
+      let pw=0, gw=0, gl=0; for(const g of m.sc){ const x=+g[s]||0, y=+g[1-s]||0; pw+=x; if(x>y) gw++; else if(y>x) gl++; }
+      for(const p of side){
+        let e=P.get(p.i); if(!e){ e={i:p.i,n:p.n,c:p.c,mt:0,w:0,l:0,min:0,pts:0,pw:0,gw:0,gl:0,g3:0,long:0,ev:new Set()}; P.set(p.i,e); }
+        e.mt++; if(won) e.w++; if(lost) e.l++; e.min+=du; e.pts+=tp; e.pw+=pw; e.gw+=gw; e.gl+=gl; if(g3) e.g3++; if(du>e.long) e.long=du; e.ev.add(m.ev);
+      }
+      for(const c of new Set(side.map(p=>p.c).filter(Boolean))){
+        let e=C.get(c); if(!e){ e={c,w:0,l:0,mt:0,min:0,pl:new Set()}; C.set(c,e); }
+        e.mt++; if(won) e.w++; if(lost) e.l++; e.min+=du; side.forEach(p=>{ if(p.c===c) e.pl.add(p.i); });
+      }
+    });
+    const a=ageOf(m.ev); let g=AG.get(a); if(!g){ g={age:a,n:0,dn:0,min:0,pts:0,g3:0}; AG.set(a,g); }
+    g.n++; if(g3) g.g3++; if(du>0){ g.dn++; g.min+=du; g.pts+=tp; }
+  }
+  const players=[...P.values()];
+  const boards={}, rank={};
+  for(const b of BOARDS){
+    const arr=players.filter(p=>p[b.k]>0).sort((x,y)=>y[b.k]-x[b.k]||y.min-x.min||x.n.localeCompare(y.n));
+    boards[b.k]=arr;
+    const r=new Map(); let prev=null, pos=0; arr.forEach((p,i)=>{ if(p[b.k]!==prev){ pos=i+1; prev=p[b.k]; } r.set(p.i,pos); }); rank[b.k]=r; // 1 + players with a higher value
+  }
+  const clean=played.filter(isClean);
+  const longest=clean.slice().sort((x,y)=>y.du-x.du||ptsOf(y)-ptsOf(x)).slice(0,5);
+  const shortest=clean.slice().sort((x,y)=>x.du-y.du||ptsOf(x)-ptsOf(y)).slice(0,3);
+  const games=[]; for(const m of clean){ m.sc.forEach((g,i)=>{ const x=+g[0]||0, y=+g[1]||0; games.push({m,g,i,t:x+y,lo:Math.min(x,y),hi:Math.max(x,y)}); }); }
+  const highGames=games.filter(x=>x.hi>21).sort((x,y)=>y.t-x.t).slice(0,5);
+  const oneSided=games.filter(x=>x.hi>=21&&x.lo<=2).sort((x,y)=>x.lo-y.lo||(x.m.t<y.m.t?1:-1));
+  const comebacks=clean.filter(m=>m.sc.length===3&&((+m.sc[0][0]>+m.sc[0][1])?2:1)===m.w).length;
+  const three=clean.filter(m=>m.sc.length===3).length;
+  const seedN=s=>{ const n=parseInt(s,10); return isNaN(n)?99:n; };
+  const seeded=played.filter(m=>m.sa||m.sb);
+  const upsets=seeded.filter(m=>(m.w===1&&!m.sa&&m.sb)||(m.w===2&&!m.sb&&m.sa)).sort((x,y)=>seedN(x.w===1?x.sb:x.sa)-seedN(y.w===1?y.sb:y.sa)||(x.t<y.t?1:-1));
+  const countries=[...C.values()].sort((x,y)=>y.w-x.w||(y.w/(y.mt||1))-(x.w/(x.mt||1))||x.c.localeCompare(y.c));
+  const crank=new Map(); { let prev=null,pos=0; countries.forEach((c,i)=>{ if(c.w!==prev){ pos=i+1; prev=c.w; } crank.set(c.c,pos); }); }
+  const ages=[...AG.values()].sort((x,y)=>x.age-y.age);
+  // medals: both semifinal losers get bronze, the final gives gold and silver (walkovers count here)
+  const medals=new Map(), pmedals=new Map();
+  if(!age){ for(const m of all){
+    const rd=MEDAL_ROUNDS[m.rd]; if(!rd) continue;
+    if(!(m.st==='F'||m.st==='O')||!m.a.length||!m.b.length||!(m.w===1||m.w===2)) continue;
+    const win=m.w===1?m.a:m.b, lose=m.w===1?m.b:m.a;
+    const give=(side,kind)=>{ for(const c of new Set(side.map(p=>p.c).filter(Boolean))){ const e=medals.get(c)||{c,g:0,s:0,b:0}; e[kind]++; medals.set(c,e); } for(const p of side){ const l=pmedals.get(p.i)||[]; l.push({kind,ev:m.ev}); pmedals.set(p.i,l); } };
+    if(rd==='SF') give(lose,'b'); else { give(win,'g'); give(lose,'s'); }
+  } }
+  const medalTable=[...medals.values()].sort((x,y)=>y.g-x.g||y.s-x.s||y.b-x.b||x.c.localeCompare(y.c));
+  // tags: players who lead a board (only when five or fewer share the top spot), record holders and medal winners
+  const tags=new Map(); const addTag=(pid,t,v)=>{ const l=tags.get(pid)||[]; if(!l.some(x=>x.t===t)) l.push({t,v}); tags.set(pid,l); };
+  if(!age){
+    for(const [pid,l] of pmedals) for(const x of l) addTag(pid,({g:'Gold',s:'Silver',b:'Bronze'})[x.kind]+' · '+x.ev,'');
+    for(const b of BOARDS){ const arr=boards[b.k]; if(!arr.length) continue; const top=arr[0][b.k]; const lead=arr.filter(p=>p[b.k]===top); if(lead.length<=5) lead.forEach(p=>addTag(p.i,b.tag,fmtN(top)+(b.u?' '+b.u:''))); }
+    if(longest[0]){ const d=longest[0].du; clean.filter(m=>m.du===d).slice(0,3).forEach(m=>m.a.concat(m.b).forEach(p=>addTag(p.i,'Longest match',d+' min'))); }
+    if(highGames[0]){ const t=highGames[0].t; highGames.filter(x=>x.t===t).slice(0,3).forEach(x=>x.m.a.concat(x.m.b).forEach(p=>addTag(p.i,'Highest-scoring game',x.hi+'-'+x.lo))); }
+  }
+  return {age, played, players, P, boards, rank, min, points, countriesN:C.size, C, countries, crank, ages, longest, shortest, highGames, oneSided, comebacks, three, clean:clean.length, upsets, seeded:seeded.length, medalTable, tags};
+}
+function tagsHtml(pid, small){
+  const l=stats(0).tags.get(pid); if(!l||!l.length) return '';
+  return '<div class="tags">'+l.map(x=>'<span class="tag'+(small?' sm':'')+'"'+(x.v?' title="'+esc(x.v)+'"':'')+'>'+TROPHY+esc(x.t)+'</span>').join('')+'</div>';
+}
+
+/* longest run of points, from BWF's match statistics: one small request per finished match, only for the player on screen */
+const MST_API='https://extranet-lv.bwfbadminton.com/api/match-center/vue-match-stat?tmtId=5871&matchId=';
+const MST={}, MSTbusy={}; let mstTimer=null;
+function matchRun(m){ // [run of side a, run of side b]; undefined while loading; null when BWF has no numbers
+  const k=m.n; if(!k) return null;
+  if(k in MST) return MST[k];
+  const c=store.get('mst:'+k); if(Array.isArray(c)){ MST[k]=c; return c; }
+  if(!MSTbusy[k]){
+    MSTbusy[k]=fetch(MST_API+encodeURIComponent(k),{cache:'default'}).then(r=>r.ok?r.json():null).then(j=>{
+      const r=j&&j.results;
+      if(r&&r.team1_consecutive_points!=null){
+        let v=[+r.team1_consecutive_points||0,+r.team2_consecutive_points||0];
+        const pa=m.sc.reduce((x,g)=>x+(+g[0]||0),0), pb=m.sc.reduce((x,g)=>x+(+g[1]||0),0);
+        if(pa!==pb&&+r.team1_rallies_won===pb&&+r.team2_rallies_won===pa) v=[v[1],v[0]]; // safety: BWF's team 1 turned out to be our side b
+        MST[k]=v; store.set('mst:'+k,v);
+      } else MST[k]=null;
+    }).catch(()=>{ MST[k]=null; }).then(()=>{ delete MSTbusy[k]; clearTimeout(mstTimer); mstTimer=setTimeout(()=>render({bg:true}),250); });
+  }
+  return undefined;
+}
+
+function playerStatsCard(p){ // the player's own numbers, on the Me page and on every player page
+  const st=stats(0); const e=st.P.get(p.i); if(!e) return '';
+  let run=0, pending=0, known=0;
+  for(const m of matchesOf(p.i)){ if(!isPlayed(m)) continue; const r=matchRun(m); if(r===undefined){ pending++; continue; } if(!r) continue; known++; const s=m.a.some(x=>x.i===p.i)?0:1; if(r[s]>run) run=r[s]; }
+  const rk=k=>{ const r=st.rank[k].get(p.i); return r?'#'+fmtN(r)+' of '+fmtN(st.players.length):''; };
+  return '<div class="card" style="margin-top:10px"><div class="shead"><span class="ev">Tournament so far</span><button class="btn ghost" data-act="tab" data-tab="stats" style="padding:0">All stats ›</button></div><div class="kpis">'+
+    kpi(e.w+'–'+e.l,'Won–lost',e.mt+' match'+(e.mt===1?'':'es'))+
+    kpi(fmtN(e.min)+'<small>min</small>','On court',rk('min'))+
+    kpi(fmtN(e.pts),'Points played',fmtN(e.pw)+' won')+
+    kpi(e.gw+'–'+e.gl,'Games won–lost',e.g3?e.g3+' went to three':'')+
+    kpi(e.long+'<small>min</small>','Longest match','')+
+    kpi(known?String(run):(pending?'…':'–'),'Longest run','points in a row')+
+  '</div></div>';
+}
+function lbRow(p,rk,val,unit,sub){
+  const me=S.me&&S.me.i===p.i;
+  return '<button class="prow'+(me?' me':'')+'" data-act="open" data-id="'+esc(p.i)+'"><span class="rk">'+rk+'</span><span class="flag">'+(flag(p.c)||'')+'</span><div class="grow"><div class="nm">'+esc(p.n)+'</div><div class="sub">'+esc(sub!=null?sub:[...p.ev].join(', '))+'</div></div><span class="val">'+val+(unit?'<small>'+unit+'</small>':'')+'</span></button>';
+}
+function countryStatsCard(cc){ // shown on a country's page
+  const st=stats(0); const e=st.C.get(cc); if(!e) return '';
+  const pct=e.mt?Math.round(100*e.w/e.mt):0;
+  const top=st.players.filter(p=>p.c===cc&&p.w>0).sort((x,y)=>y.w-x.w||y.min-x.min||x.n.localeCompare(y.n)).slice(0,3);
+  const med=st.medalTable.find(x=>x.c===cc);
+  let html='<div class="card" style="margin-bottom:12px"><div class="shead"><span class="ev">Tournament so far</span><button class="btn ghost" data-act="tab" data-tab="stats" style="padding:0">All stats ›</button></div><div class="kpis">'+
+    kpi(e.w+'–'+e.l,'Won–lost',pct+'% won')+
+    kpi(ordinal(st.crank.get(cc)),'Most wins','of '+st.countriesN+' countries')+
+    kpi(fmtN(e.min/60)+'<small>h</small>','On court',fmtN(e.pl.size)+' players')+'</div>';
+  if(med) html+='<div class="ev" style="margin:12px 0 6px">Medals</div><div class="medals"><span>'+med.g+' gold</span><span>'+med.s+' silver</span><span>'+med.b+' bronze</span></div>';
+  if(top.length) html+='<div class="ev" style="margin:12px 0 6px">Most wins</div><div class="list lb">'+top.map(p=>lbRow(p,1+top.filter(q=>q.w>p.w).length,p.w,p.w===1?' win':' wins')).join('')+'</div>';
+  return html+'</div>';
+}
+function recSide(t){ return sideFlags(t)+t.map(p=>'<span'+(S.me&&S.me.i===p.i?' class="mine"':'')+'>'+esc(surname(p.n))+'</span>').join('/'); }
+function recRow(v,sub,m){
+  const a=recSide(m.a), b=recSide(m.b);
+  return '<div class="rec"><div class="rv">'+v+'<small>'+esc(sub)+'</small></div><div class="grow"><div class="ev">'+esc(m.ev)+' · '+esc(m.rd)+' · '+esc(dayLabel(m.d))+'</div><div class="who">'+(m.w===1?'<b>'+a+'</b>':a)+' <span class="muted">v</span> '+(m.w===2?'<b>'+b+'</b>':b)+'</div><div class="scr">'+esc(scoreTxt(m))+(m.du?' · '+m.du+' min':'')+'</div></div></div>';
+}
+function viewStatsPage(){ // the Stats tab
+  const ages=[...new Set(allMatches().map(m=>ageOf(m.ev)).filter(Boolean))].sort((a,b)=>a-b);
+  const age=ages.includes(S.sage)?S.sage:0;
+  const st=stats(age);
+  let html='<h2>Stats</h2>';
+  html+='<div class="chips">'+[0].concat(ages).map(a=>'<button class="chip'+(a===age?' on':'')+'" data-act="sage" data-a="'+a+'">'+(a?a+'+':'All ages')+'</button>').join('')+'</div>';
+  if(!st.played.length) return html+'<div class="card empty">No finished matches'+(age?' in the '+age+'+ events':'')+' yet.</div>';
+  if(S.me){ const e=st.P.get(S.me.i); if(e){ const r=st.rank.min.get(e.i);
+    html+='<button class="next" data-act="tab" data-tab="me" style="display:block;width:100%;text-align:left;border:0;margin-bottom:12px"><b>You'+(age?' in '+age+'+':'')+':</b> '+fmtN(e.min)+' min on court (#'+fmtN(r)+' of '+fmtN(st.players.length)+'), '+e.w+' win'+(e.w===1?'':'s')+', '+fmtN(e.pts)+' points played ›</button>'; } }
+  html+='<div class="card"><div class="kpis k2">'+
+    kpi(fmtN(st.played.length),'Matches played',st.clean?Math.round(100*st.three/st.clean)+'% went to three games':'')+
+    kpi(fmtN(st.min/60)+'<small>h</small>','Hours of play','all courts added up')+
+    kpi(fmtN(st.points),'Points played','')+
+    kpi(fmtN(st.players.length),'Players',st.countriesN+' countries')+'</div></div>';
+  if(!age&&st.medalTable.length) html+=medalHtml(st);
+  html+='<h2>Leaders</h2>';
+  for(const b of BOARDS){
+    const arr=st.boards[b.k]; if(!arr.length) continue;
+    const n=S.smore[b.k]?10:5; const shown=arr.slice(0,n);
+    const mine=S.me&&!shown.some(p=>p.i===S.me.i)?arr.find(p=>p.i===S.me.i):null;
+    html+='<div class="card lb" style="margin-bottom:12px"><div class="shead"><span class="ev">'+esc(b.t)+'</span></div><div class="list">'+shown.concat(mine?[mine]:[]).map(p=>lbRow(p,st.rank[b.k].get(p.i),fmtN(p[b.k]),b.u)).join('')+'</div>'+(arr.length>5?'<button class="btn ghost more" data-act="smore" data-k="'+b.k+'">'+(S.smore[b.k]?'Show top 5':'Show top 10')+'</button>':'')+'</div>';
+  }
+  html+='<h2>Records</h2><div class="card">';
+  if(st.longest.length) html+='<div class="ev">Longest matches</div>'+st.longest.slice(0,3).map(m=>recRow(m.du,'min',m)).join('');
+  if(st.shortest.length) html+='<div class="ev" style="margin-top:14px">Shortest matches</div>'+st.shortest.map(m=>recRow(m.du,'min',m)).join('');
+  if(st.highGames.length) html+='<div class="ev" style="margin-top:14px">Highest-scoring games</div>'+st.highGames.slice(0,3).map(x=>recRow(x.hi+'-'+x.lo,'game '+(x.i+1),x.m)).join('');
+  if(st.oneSided.length) html+='<div class="ev" style="margin-top:14px">Most one-sided games</div>'+st.oneSided.slice(0,3).map(x=>recRow(x.hi+'-'+x.lo,'game '+(x.i+1),x.m)).join('');
+  html+='<div class="kpis k2" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">'+kpi(fmtN(st.comebacks),'Comebacks','lost game 1, won the match')+kpi(fmtN(st.three),'Went to three games',st.clean?Math.round(100*st.three/st.clean)+'% of matches':'')+'</div></div>';
+  if(st.seeded){
+    html+='<h2>Upsets</h2><div class="card"><p class="small" style="margin:0 0 4px">Unseeded players beat a seed <b>'+st.upsets.length+'</b> time'+(st.upsets.length===1?'':'s')+' in '+fmtN(st.seeded)+' matches with a seed.</p>'+st.upsets.slice(0,5).map(m=>recRow('['+esc(m.w===1?m.sb:m.sa)+']','seed beaten',m)).join('')+'</div>';
+  }
+  if(!age&&st.ages.length>1){
+    html+='<h2>Age groups</h2><div class="card"><div class="tscroll"><table class="stbl"><thead><tr><th>Age</th><th>Matches</th><th>Avg min</th><th>Points per min</th><th>3 games</th></tr></thead><tbody>'+st.ages.map(g=>'<tr class="tap" data-act="sage" data-a="'+g.age+'"><td><b>'+g.age+'+</b></td><td>'+fmtN(g.n)+'</td><td>'+(g.dn?(g.min/g.dn).toFixed(1):'–')+'</td><td>'+(g.min?(g.pts/g.min).toFixed(2):'–')+'</td><td>'+Math.round(100*g.g3/g.n)+'%</td></tr>').join('')+'</tbody></table></div><p class="tiny muted" style="margin:8px 0 0">Avg min is the average match length. Points per minute is a rough measure of rally length: more points per minute means shorter rallies. Tap an age group to see its own leaders.</p></div>';
+  }
+  const cs=st.countries; const nC=S.smore.cty?cs.length:10;
+  html+='<h2>Countries</h2><div class="card"><table class="stbl"><thead><tr><th>Country</th><th>Won</th><th>Lost</th><th>Win %</th></tr></thead><tbody>'+cs.slice(0,nC).map(c=>'<tr class="tap'+(S.me&&S.me.c===c.c?' hi':'')+'" data-act="opencountry" data-cc="'+esc(c.c)+'"><td><span class="cn">'+st.crank.get(c.c)+'. <span class="flag" style="width:auto;font-size:15px">'+(flag(c.c)||'')+'</span>'+esc(cname(c.c))+'</span></td><td>'+c.w+'</td><td>'+c.l+'</td><td>'+Math.round(100*c.w/(c.mt||1))+'%</td></tr>').join('')+'</tbody></table>'+(cs.length>10?'<button class="btn ghost more" data-act="smore" data-k="cty">'+(S.smore.cty?'Show top 10':'Show all '+cs.length)+'</button>':'')+'</div>';
+  if(!age&&!st.medalTable.length) html+='<h2>Medals</h2><div class="card small muted">The medal table fills in as the semifinals and finals are played. Both semifinal losers get bronze.</div>';
+  html+='<p class="small muted" style="margin-top:14px">Worked out on this phone from the same BWF feed as the rest of the site. Only finished matches count and walkovers are left out. A retired match counts for the players’ totals but not for the match records. In doubles both partners get the minutes and points. Leaders get a tag on their player page.</p>';
+  return html;
+}
+function medalHtml(st){
+  return '<h2>Medals</h2><div class="card"><table class="stbl"><thead><tr><th>Country</th><th>Gold</th><th>Silver</th><th>Bronze</th></tr></thead><tbody>'+st.medalTable.map(c=>'<tr class="tap'+(S.me&&S.me.c===c.c?' hi':'')+'" data-act="opencountry" data-cc="'+esc(c.c)+'"><td><span class="cn"><span class="flag" style="width:auto;font-size:15px">'+(flag(c.c)||'')+'</span>'+esc(cname(c.c))+'</span></td><td>'+c.g+'</td><td>'+c.s+'</td><td>'+c.b+'</td></tr>').join('')+'</tbody></table><p class="tiny muted" style="margin:8px 0 0">Counted per event: a pair from two countries gives both countries a medal.</p></div>';
 }
 
 
@@ -904,6 +1149,8 @@ function updHash(){
   else if(S.tab==='venues') h='#venues';
   else if(S.tab==='draws') h='#draws';
   else if(S.tab==='players') h='#players';
+  else if(S.tab==='stats') h='#stats';
+  else if(S.tab==='usage') h='#usage';
   else h='';
   try{ if(location.hash!==h) history.replaceState(null,'',location.pathname+location.search+h); }catch(e){}
 }
@@ -911,9 +1158,9 @@ function readHash(){
   const h=(location.hash||'').slice(1);
   if(!h) return;
   const dm=/^d=(\d+)(?:-(\d+))?$/.exec(h); if(dm){ S.tab='draws'; S.draw={id:dm[1], pid:dm[2]||null, from:'list', part:null}; return; }
-  const m=/^p=(\d+)$/.exec(h); if(m){ S.tab='players'; S.pendingPlayer=m[1]; S.draw=null; return; }
+  const m=/^p=(\d+)$/.exec(h); if(m){ S.tab='players'; S.pendingPlayer=m[1]; S.draw=null; S.from=null; return; }
   const c=/^c=([A-Z]{3})$/.exec(h); if(c){ S.tab='countries'; S.country=c[1]; S.draw=null; return; }
-  const tabs={venues:1,players:1,me:1,draws:1,countries:1,stats:1};
+  const tabs={venues:1,players:1,me:1,draws:1,countries:1,stats:1,usage:1};
   if(tabs[h]){ S.tab=h; S.draw=null; }
 }
 function shareUrl(id){ const base=(window.SHARE_BASE||(location.origin+location.pathname)); return base+'#p='+id; }
@@ -929,7 +1176,7 @@ function toast(msg){ let t=document.querySelector('.toast'); if(!t){ t=document.
 document.querySelector('.tabbar').addEventListener('click',e=>{
   const b=e.target.closest('.tab'); if(!b) return;
   if(S.tab===b.dataset.tab&&S.tab==='players'){ S.player=null; }
-  S.tab=b.dataset.tab; store.set('tab',S.tab); S.q=''; S.draw=null; render();
+  S.tab=b.dataset.tab; store.set('tab',S.tab); S.q=''; S.draw=null; S.from=null; render();
 });
 document.getElementById('refresh').addEventListener('click',()=>load({force:true}));
 document.getElementById('view').addEventListener('input',e=>{
@@ -946,8 +1193,12 @@ document.getElementById('view').addEventListener('click',e=>{
   const pick=()=>{ const p=D.players.get(id); return p?{i:p.i,n:p.n,c:p.c}:null; };
   if(act==='setme'){ const p=pick(); if(p){ S.me=p; store.set('me',p); S.q=''; S.tab='me'; store.set('tab','me'); toast('Saved as you'); render(); } }
   else if(act==='notme'){ S.me=null; store.del('me'); S.q=''; S.focusSearch='q-me'; render(); }
-  else if(act==='open'){ const p=pick(); if(p){ S.player=p; S.tab='players'; store.set('tab','players'); render(); } }
-  else if(act==='back'){ S.player=null; S.focusSearch='q-players'; render(); }
+  else if(act==='open'){ const p=pick(); if(p){ if(S.tab==='stats'||S.tab==='countries'){ S.from=S.tab; S.fromY=window.scrollY||0; } else if(S.tab!=='players') S.from=null; S.player=p; S.tab='players'; store.set('tab','players'); render(); } }
+  else if(act==='back'){ if(S.from){ const y=S.fromY; S.tab=S.from; store.set('tab',S.tab); S.player=null; S.from=null; render(); window.scrollTo(0,y); } else { S.player=null; S.focusSearch='q-players'; render(); } }
+  else if(act==='tab'){ S.tab=b.dataset.tab; store.set('tab',S.tab); S.q=''; S.draw=null; S.from=null; render(); }
+  else if(act==='sage'){ S.sage=+b.dataset.a||0; render(); }
+  else if(act==='smore'){ const k=b.dataset.k; S.smore[k]=!S.smore[k]; render({keepScroll:true}); }
+  else if(act==='opencountry'){ S.country=b.dataset.cc; store.set('country',S.country); S.cday=null; S.cfilter='all'; S.tab='countries'; store.set('tab',S.tab); S.from=null; render(); }
   else if(act==='follow'){ const p=pick(); if(!p) return; if(isFollowed(p.i)) S.follow=S.follow.filter(x=>x.i!==p.i); else S.follow.push(p); store.set('follow',S.follow); render({keepScroll:true}); }
   else if(act==='share'){ share(id,b.dataset.name||''); }
   else if(act==='draw'){ S.draw={id:b.dataset.id, pid:b.dataset.pid||null, from:b.dataset.from||'list', part:null}; S.drawErr=null; store.set('lastdraw',b.dataset.id); render(); }
@@ -990,7 +1241,7 @@ function track(){
   }catch(e){}
 }
 function usageText(){ if(U.devices==null) return ''; return 'Used on '+U.devices+' phone'+(U.devices===1?'':'s')+' so far'+(U.today!=null?', '+U.today+' today':'')+'.'; }
-function viewStats(){ // hidden page: #stats
+function viewUsage(){ // hidden page: #usage (was #stats before the Stats tab existed)
   let html='<h2>Usage</h2><p class="small muted">Counted per phone (first visit ever, and once per day). Page loads count every open of the site. Just for fun, not an official statistic.</p>';
   if(!U.days){ html+='<div class="stack"><div class="skel"></div></div>'; if(!U.busy){ U.busy=true; const keys=['loads','devices'].concat(CFG.days.map(d=>'day-'+d)); Promise.all(keys.map(k=>cntCall('get',k))).then(vs=>{ U.days={}; keys.forEach((k,i)=>U.days[k]=vs[i]); U.busy=false; U.at=Date.now(); render({bg:true}); }); } return html; }
   const v=k=>U.days[k]==null?'–':U.days[k];
