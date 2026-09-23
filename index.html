@@ -773,7 +773,7 @@ function viewVenues(ctx){
 
 /* ---------- stats: worked out on the phone from the day feeds that are already loaded ---------- */
 // Counted: finished matches with both sides and a score. Walkovers are left out. A retired match counts for the players'
-// totals but not for the match records (longest, shortest, one-sided). In doubles both partners get the minutes and points.
+// totals but not for the match records (longest, shortest). In doubles both partners get the minutes and points.
 const MEDAL_ROUNDS={SF:'SF', Final:'Final', F:'Final'};
 const TROPHY='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 6h3v1a3 3 0 0 1-3 3M7 6H4v1a3 3 0 0 0 3 3"/></svg>';
 const BOARDS=[
@@ -834,7 +834,6 @@ function computeStats(age){
   const shortest=clean.slice().sort((x,y)=>x.du-y.du||ptsOf(x)-ptsOf(y)).slice(0,3);
   const games=[]; for(const m of clean){ m.sc.forEach((g,i)=>{ const x=+g[0]||0, y=+g[1]||0; games.push({m,g,i,t:x+y,lo:Math.min(x,y),hi:Math.max(x,y)}); }); }
   const highGames=games.filter(x=>x.hi>21).sort((x,y)=>y.t-x.t).slice(0,5);
-  const oneSided=games.filter(x=>x.hi>=21&&x.lo<=2).sort((x,y)=>x.lo-y.lo||(x.m.t<y.m.t?1:-1));
   const comebacks=clean.filter(m=>m.sc.length===3&&((+m.sc[0][0]>+m.sc[0][1])?2:1)===m.w).length;
   const three=clean.filter(m=>m.sc.length===3).length;
   const seedN=s=>{ const n=parseInt(s,10); return isNaN(n)?99:n; };
@@ -861,7 +860,7 @@ function computeStats(age){
     if(longest[0]){ const d=longest[0].du; clean.filter(m=>m.du===d).slice(0,3).forEach(m=>m.a.concat(m.b).forEach(p=>addTag(p.i,'Longest match',d+' min'))); }
     if(highGames[0]){ const t=highGames[0].t; highGames.filter(x=>x.t===t).slice(0,3).forEach(x=>x.m.a.concat(x.m.b).forEach(p=>addTag(p.i,'Highest-scoring game',x.hi+'-'+x.lo))); }
   }
-  return {age, played, players, P, boards, rank, min, points, countriesN:C.size, C, countries, crank, ages, longest, shortest, highGames, oneSided, comebacks, three, clean:clean.length, upsets, seeded:seeded.length, medalTable, tags};
+  return {age, played, players, P, boards, rank, min, points, countriesN:C.size, C, countries, crank, ages, longest, shortest, highGames, comebacks, three, clean:clean.length, upsets, seeded:seeded.length, medalTable, tags};
 }
 function tagsHtml(pid, small){
   const l=stats(0).tags.get(pid); if(!l||!l.length) return '';
@@ -951,7 +950,6 @@ function viewStatsPage(){ // the Stats tab
   if(st.longest.length) html+='<div class="ev">Longest matches</div>'+st.longest.slice(0,3).map(m=>recRow(m.du,'min',m)).join('');
   if(st.shortest.length) html+='<div class="ev" style="margin-top:14px">Shortest matches</div>'+st.shortest.map(m=>recRow(m.du,'min',m)).join('');
   if(st.highGames.length) html+='<div class="ev" style="margin-top:14px">Highest-scoring games</div>'+st.highGames.slice(0,3).map(x=>recRow(x.hi+'-'+x.lo,'game '+(x.i+1),x.m)).join('');
-  if(st.oneSided.length) html+='<div class="ev" style="margin-top:14px">Most one-sided games</div>'+st.oneSided.slice(0,3).map(x=>recRow(x.hi+'-'+x.lo,'game '+(x.i+1),x.m)).join('');
   html+='<div class="kpis k2" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">'+kpi(fmtN(st.comebacks),'Comebacks','lost game 1, won the match')+kpi(fmtN(st.three),'Went to three games',st.clean?Math.round(100*st.three/st.clean)+'% of matches':'')+'</div></div>';
   if(st.seeded){
     html+='<h2>Upsets</h2><div class="card"><p class="small" style="margin:0 0 4px">Unseeded players beat a seed <b>'+st.upsets.length+'</b> time'+(st.upsets.length===1?'':'s')+' in '+fmtN(st.seeded)+' matches with a seed.</p>'+st.upsets.slice(0,5).map(m=>recRow('['+esc(m.w===1?m.sb:m.sa)+']','seed beaten',m)).join('')+'</div>';
