@@ -283,6 +283,17 @@ h3{font:600 15px/1.2 "Barlow",system-ui,sans-serif;margin:0 0 6px}
 .stbl tr.tap{cursor:pointer}
 .stbl tr.tap:active td{background:var(--surface2)}
 .stbl .cn{display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
+.mdl{font-size:18px;letter-spacing:1px;white-space:nowrap}
+.f4list{display:flex;flex-direction:column}
+.f4row{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:transparent;border:0;border-top:1px solid var(--line);padding:7px 0;color:inherit}
+.f4row:first-child{border-top:0}
+button.f4row:active{background:var(--surface2)}
+.f4ev{font:700 14px/1 "Barlow Condensed",system-ui,sans-serif;letter-spacing:.3px;min-width:48px;white-space:nowrap;flex:0 0 auto}
+.f4s{display:flex;flex-wrap:wrap;gap:4px 10px;flex:1;min-width:0}
+.f4side{display:inline-flex;gap:1px}
+.f4side .flag{width:auto;font-size:16px}
+.f4side .cc{font-size:9px}
+.pbar{display:block;height:8px;border-radius:0 4px 4px 0;background:var(--accent);opacity:.75}
 .medals{display:flex;gap:14px;font:700 18px/1 "Barlow Condensed",system-ui,sans-serif;font-variant-numeric:tabular-nums}
 .more{display:block;width:100%;margin-top:8px;text-align:center}
 </style>
@@ -478,7 +489,7 @@ const S = {
   cday: null, cfilter:'all',
   q:'', player:null, // player view inside Players tab
   from:null, fromY:0, // tab a player page was opened from (stats or countries), so Back returns there
-  sage:0, smore:{}, // Stats tab: age group filter and which lists are expanded
+  sage:0, smore:{}, scat:'', // Stats tab: age group filter, which lists are expanded, final four category
   pday: {}
 };
 function isFollowed(id){ return S.follow.some(p=>p.i===id); }
@@ -775,6 +786,8 @@ function viewVenues(ctx){
 // Counted: finished matches with both sides and a score. Walkovers are left out. A retired match counts for the players'
 // totals but not for the match records (longest, shortest). In doubles both partners get the minutes and points.
 const MEDAL_ROUNDS={SF:'SF', Final:'Final', F:'Final'};
+const CATS=['MS','WS','MD','WD','XD'];
+const CAT_NAMES={MS:"Men's singles",WS:"Women's singles",MD:"Men's doubles",WD:"Women's doubles",XD:'Mixed doubles'};
 const TROPHY='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 6h3v1a3 3 0 0 1-3 3M7 6H4v1a3 3 0 0 0 3 3"/></svg>';
 const BOARDS=[
   {k:'min', t:'Minutes on court', tag:'Most minutes on court', u:'min'},
@@ -814,9 +827,11 @@ function computeStats(age){
         let e=P.get(p.i); if(!e){ e={i:p.i,n:p.n,c:p.c,mt:0,w:0,l:0,min:0,pts:0,pw:0,gw:0,gl:0,g3:0,long:0,ev:new Set()}; P.set(p.i,e); }
         e.mt++; if(won) e.w++; if(lost) e.l++; e.min+=du; e.pts+=tp; e.pw+=pw; e.gw+=gw; e.gl+=gl; if(g3) e.g3++; if(du>e.long) e.long=du; e.ev.add(m.ev);
       }
+      const opp=new Set((s?m.a:m.b).map(p=>p.c)); // a country on both sides (Dane v Dane) wins and loses nothing
       for(const c of new Set(side.map(p=>p.c).filter(Boolean))){
-        let e=C.get(c); if(!e){ e={c,w:0,l:0,mt:0,min:0,pl:new Set()}; C.set(c,e); }
-        e.mt++; if(won) e.w++; if(lost) e.l++; e.min+=du; side.forEach(p=>{ if(p.c===c) e.pl.add(p.i); });
+        let e=C.get(c); if(!e){ e={c,w:0,l:0,mt:0,same:0,min:0,pl:new Set()}; C.set(c,e); }
+        if(opp.has(c)){ if(s===0) e.same++; } else { e.mt++; if(won) e.w++; if(lost) e.l++; }
+        e.min+=du; side.forEach(p=>{ if(p.c===c) e.pl.add(p.i); });
       }
     });
     const a=ageOf(m.ev); let g=AG.get(a); if(!g){ g={age:a,n:0,dn:0,min:0,pts:0,g3:0}; AG.set(a,g); }
@@ -844,14 +859,26 @@ function computeStats(age){
   const ages=[...AG.values()].sort((x,y)=>x.age-y.age);
   // medals: both semifinal losers get bronze, the final gives gold and silver (walkovers count here)
   const medals=new Map(), pmedals=new Map();
-  if(!age){ for(const m of all){
+  for(const m of all){
+    if(age&&ageOf(m.ev)!==age) continue;
     const rd=MEDAL_ROUNDS[m.rd]; if(!rd) continue;
     if(!(m.st==='F'||m.st==='O')||!m.a.length||!m.b.length||!(m.w===1||m.w===2)) continue;
     const win=m.w===1?m.a:m.b, lose=m.w===1?m.b:m.a;
     const give=(side,kind)=>{ for(const c of new Set(side.map(p=>p.c).filter(Boolean))){ const e=medals.get(c)||{c,g:0,s:0,b:0}; e[kind]++; medals.set(c,e); } for(const p of side){ const l=pmedals.get(p.i)||[]; l.push({kind,ev:m.ev}); pmedals.set(p.i,l); } };
     if(rd==='SF') give(lose,'b'); else { give(win,'g'); give(lose,'s'); }
-  } }
+  }
   const medalTable=[...medals.values()].sort((x,y)=>y.g-x.g||y.s-x.s||y.b-x.b||x.c.localeCompare(y.c));
+  // medals per player: gold 3 points, silver 2, bronze 1; equal points are split by golds, then silvers
+  const pmedalList=[...pmedals.entries()].map(([pid,l])=>{ const p=P.get(pid)||D.players.get(pid)||{i:pid,n:'',c:''}; const o={i:pid,n:p.n,c:p.c,g:0,s:0,b:0,l}; l.forEach(x=>o[x.kind]++); o.pts=3*o.g+2*o.s+o.b; return o; })
+    .sort((x,y)=>y.pts-x.pts||y.g-x.g||y.s-x.s||x.n.localeCompare(y.n));
+  { let prev=null,pos=0; pmedalList.forEach((o,i)=>{ const k=o.pts+'/'+o.g+'/'+o.s; if(k!==prev){ pos=i+1; prev=k; } o.rk=pos; }); }
+  // final four: every player in a semifinal (scheduled or played), per event, counted per country
+  const f4ev=new Map();
+  for(const m of all){
+    if(m.rd!=='SF') continue; if(age&&ageOf(m.ev)!==age) continue;
+    const e=f4ev.get(m.ev)||{ev:m.ev,sides:[]}; [m.a,m.b].forEach(t=>{ if(t.length) e.sides.push(t); }); f4ev.set(m.ev,e);
+  }
+  const final4=[...f4ev.values()].sort((x,y)=>ageOf(x.ev)-ageOf(y.ev)||CATS.indexOf(x.ev.slice(0,2))-CATS.indexOf(y.ev.slice(0,2)));
   // tags: players who lead a board (only when five or fewer share the top spot), record holders and medal winners
   const tags=new Map(); const addTag=(pid,t,v)=>{ const l=tags.get(pid)||[]; if(!l.some(x=>x.t===t)) l.push({t,v}); tags.set(pid,l); };
   if(!age){
@@ -860,7 +887,7 @@ function computeStats(age){
     if(longest[0]){ const d=longest[0].du; clean.filter(m=>m.du===d).slice(0,3).forEach(m=>m.a.concat(m.b).forEach(p=>addTag(p.i,'Longest match',d+' min'))); }
     if(highGames[0]){ const t=highGames[0].t; highGames.filter(x=>x.t===t).slice(0,3).forEach(x=>x.m.a.concat(x.m.b).forEach(p=>addTag(p.i,'Highest-scoring game',x.hi+'-'+x.lo))); }
   }
-  return {age, played, players, P, boards, rank, min, points, countriesN:C.size, C, countries, crank, ages, longest, shortest, highGames, comebacks, three, clean:clean.length, upsets, seeded:seeded.length, medalTable, tags};
+  return {age, played, players, P, boards, rank, min, points, countriesN:C.size, C, countries, crank, ages, longest, shortest, highGames, comebacks, three, clean:clean.length, upsets, seeded:seeded.length, medalTable, pmedalList, final4, tags};
 }
 function tagsHtml(pid, small){
   const l=stats(0).tags.get(pid); if(!l||!l.length) return '';
@@ -915,6 +942,7 @@ function countryStatsCard(cc){ // shown on a country's page
     kpi(e.w+'–'+e.l,'Won–lost',pct+'% won')+
     kpi(ordinal(st.crank.get(cc)),'Most wins','of '+st.countriesN+' countries')+
     kpi(fmtN(e.min/60)+'<small>h</small>','On court',fmtN(e.pl.size)+' players')+'</div>';
+  if(e.same) html+='<p class="tiny muted" style="margin:8px 0 0">'+e.same+' match'+(e.same===1?'':'es')+' with '+esc(cname(cc))+' on both sides '+(e.same===1?'is':'are')+' not counted in won–lost.</p>';
   if(med) html+='<div class="ev" style="margin:12px 0 6px">Medals</div><div class="medals"><span>'+med.g+' gold</span><span>'+med.s+' silver</span><span>'+med.b+' bronze</span></div>';
   if(top.length) html+='<div class="ev" style="margin:12px 0 6px">Most wins</div><div class="list lb">'+top.map(p=>lbRow(p,1+top.filter(q=>q.w>p.w).length,p.w,p.w===1?' win':' wins')).join('')+'</div>';
   return html+'</div>';
@@ -938,7 +966,8 @@ function viewStatsPage(){ // the Stats tab
     kpi(fmtN(st.min/60)+'<small>h</small>','Hours of play','all courts added up')+
     kpi(fmtN(st.points),'Points played','')+
     kpi(fmtN(st.players.length),'Players',st.countriesN+' countries')+'</div></div>';
-  if(!age&&st.medalTable.length) html+=medalHtml(st);
+  if(st.medalTable.length) html+=medalHtml(st)+pmedalHtml(st);
+  html+=final4Html(st);
   html+='<h2>Leaders</h2>';
   for(const b of BOARDS){
     const arr=st.boards[b.k]; if(!arr.length) continue;
@@ -958,13 +987,54 @@ function viewStatsPage(){ // the Stats tab
     html+='<h2>Age groups</h2><div class="card"><div class="tscroll"><table class="stbl"><thead><tr><th>Age</th><th>Matches</th><th>Avg min</th><th>Points per min</th><th>3 games</th></tr></thead><tbody>'+st.ages.map(g=>'<tr class="tap" data-act="sage" data-a="'+g.age+'"><td><b>'+g.age+'+</b></td><td>'+fmtN(g.n)+'</td><td>'+(g.dn?(g.min/g.dn).toFixed(1):'–')+'</td><td>'+(g.min?(g.pts/g.min).toFixed(2):'–')+'</td><td>'+Math.round(100*g.g3/g.n)+'%</td></tr>').join('')+'</tbody></table></div><p class="tiny muted" style="margin:8px 0 0">Avg min is the average match length. Points per minute is a rough measure of rally length: more points per minute means shorter rallies. Tap an age group to see its own leaders.</p></div>';
   }
   const cs=st.countries; const nC=S.smore.cty?cs.length:10;
-  html+='<h2>Countries</h2><div class="card"><table class="stbl"><thead><tr><th>Country</th><th>Won</th><th>Lost</th><th>Win %</th></tr></thead><tbody>'+cs.slice(0,nC).map(c=>'<tr class="tap'+(S.me&&S.me.c===c.c?' hi':'')+'" data-act="opencountry" data-cc="'+esc(c.c)+'"><td><span class="cn">'+st.crank.get(c.c)+'. <span class="flag" style="width:auto;font-size:15px">'+(flag(c.c)||'')+'</span>'+esc(cname(c.c))+'</span></td><td>'+c.w+'</td><td>'+c.l+'</td><td>'+Math.round(100*c.w/(c.mt||1))+'%</td></tr>').join('')+'</tbody></table>'+(cs.length>10?'<button class="btn ghost more" data-act="smore" data-k="cty">'+(S.smore.cty?'Show top 10':'Show all '+cs.length)+'</button>':'')+'</div>';
-  if(!age&&!st.medalTable.length) html+='<h2>Medals</h2><div class="card small muted">The medal table fills in as the semifinals and finals are played. Both semifinal losers get bronze.</div>';
+  html+='<h2>Countries</h2><div class="card"><table class="stbl"><thead><tr><th>Country</th><th>Won</th><th>Lost</th><th>Win %</th></tr></thead><tbody>'+cs.slice(0,nC).map(c=>'<tr class="tap'+(S.me&&S.me.c===c.c?' hi':'')+'" data-act="opencountry" data-cc="'+esc(c.c)+'"><td><span class="cn">'+st.crank.get(c.c)+'. <span class="flag" style="width:auto;font-size:15px">'+(flag(c.c)||'')+'</span>'+esc(cname(c.c))+'</span></td><td>'+c.w+'</td><td>'+c.l+'</td><td>'+(c.mt?Math.round(100*c.w/c.mt)+'%':'–')+'</td></tr>').join('')+'</tbody></table>'+(cs.length>10?'<button class="btn ghost more" data-act="smore" data-k="cty">'+(S.smore.cty?'Show top 10':'Show all '+cs.length)+'</button>':'')+'<p class="tiny muted" style="margin:8px 0 0">Matches with the same country on both sides, for example Denmark v Denmark, are left out of won, lost and win %.</p></div>';
+  html+=partHtml(st);
+  if(!st.medalTable.length) html+='<h2>Medals</h2><div class="card small muted">The medal tables fill in as the semifinals and finals are played. Both semifinal losers get bronze.</div>';
   html+='<p class="small muted" style="margin-top:14px">Worked out on this phone from the same BWF feed as the rest of the site. Only finished matches count and walkovers are left out. A retired match counts for the players’ totals but not for the match records. In doubles both partners get the minutes and points. Leaders get a tag on their player page.</p>';
   return html;
 }
 function medalHtml(st){
   return '<h2>Medals</h2><div class="card"><table class="stbl"><thead><tr><th>Country</th><th>Gold</th><th>Silver</th><th>Bronze</th></tr></thead><tbody>'+st.medalTable.map(c=>'<tr class="tap'+(S.me&&S.me.c===c.c?' hi':'')+'" data-act="opencountry" data-cc="'+esc(c.c)+'"><td><span class="cn"><span class="flag" style="width:auto;font-size:15px">'+(flag(c.c)||'')+'</span>'+esc(cname(c.c))+'</span></td><td>'+c.g+'</td><td>'+c.s+'</td><td>'+c.b+'</td></tr>').join('')+'</tbody></table><p class="tiny muted" style="margin:8px 0 0">Counted per event: a pair from two countries gives both countries a medal.</p></div>';
+}
+const MEDAL_EMOJI={g:'\u{1F947}',s:'\u{1F948}',b:'\u{1F949}'}, MEDAL_WORD={g:'Gold',s:'Silver',b:'Bronze'};
+function rankRows(arr,key){ let prev=null,pos=0; return arr.map((o,i)=>{ const k=key(o); if(k!==prev){ pos=i+1; prev=k; } return pos; }); }
+function moreBtn(k,total,few,label){ return total>few?'<button class="btn ghost more" data-act="smore" data-k="'+k+'">'+(S.smore[k]?'Show top '+few:'Show all '+total+(label?' '+label:''))+'</button>':''; }
+function pmedalHtml(st){ // medals per player, gold counts most
+  const l=st.pmedalList; if(!l.length) return '';
+  const shown=l.slice(0,S.smore.pm?l.length:10);
+  const mine=S.me&&!shown.some(o=>o.i===S.me.i)?l.find(o=>o.i===S.me.i):null;
+  const order=x=>({g:0,s:1,b:2})[x.kind];
+  const row=o=>lbRow(o,o.rk,'<span class="mdl">'+o.l.slice().sort((x,y)=>order(x)-order(y)).map(x=>MEDAL_EMOJI[x.kind]).join('')+'</span>','',o.l.slice().sort((x,y)=>order(x)-order(y)).map(x=>MEDAL_WORD[x.kind]+' '+x.ev).join(' · '));
+  return '<div class="card lb" style="margin-top:12px"><div class="shead"><span class="ev">Medals per player</span></div><div class="list">'+shown.concat(mine?[mine]:[]).map(row).join('')+'</div>'+moreBtn('pm',l.length,10,'players')+'<p class="tiny muted" style="margin:8px 0 0">Ranked with gold counting 3, silver 2 and bronze 1. Equal totals are split by golds, then silvers.</p></div>';
+}
+function f4Flags(t){ return t.map(p=>'<span class="flag" title="'+esc(cname(p.c))+'">'+(flag(p.c)||'')+'</span>').join(''); }
+function final4Html(st){ // which countries have the most players in the semifinals
+  if(!st.final4.length) return '';
+  const cats=CATS.filter(c=>st.final4.some(e=>e.ev.startsWith(c+' ')));
+  const cat=cats.includes(S.scat)?S.scat:'';
+  const evs=st.final4.filter(e=>!cat||e.ev.startsWith(cat+' '));
+  const C=new Map();
+  for(const e of evs) for(const t of e.sides) for(const p of t){ if(!p.c) continue; const o=C.get(p.c)||{c:p.c,n:0,ev:new Set()}; o.n++; o.ev.add(e.ev); C.set(p.c,o); }
+  const rows=[...C.values()].sort((x,y)=>y.n-x.n||y.ev.size-x.ev.size||cname(x.c).localeCompare(cname(y.c)));
+  const rk=rankRows(rows,o=>o.n);
+  const nR=S.smore.f4?rows.length:10;
+  ensureDrawList();
+  const me=S.me?S.me.i:'';
+  let html='<h2>Final four</h2><div class="card"><p class="small" style="margin:0 0 8px">Players in the semifinals, counted per country'+(st.age?' in the '+st.age+'+ events':'')+'.</p>';
+  if(cats.length>1) html+='<div class="chips" style="padding-bottom:10px">'+[''].concat(cats).map(c=>'<button class="chip'+(c===cat?' on':'')+'" data-act="scat" data-c="'+c+'">'+(c||'All')+'</button>').join('')+'</div>';
+  html+='<table class="stbl"><thead><tr><th>Country</th><th>Players</th><th>Events</th></tr></thead><tbody>'+rows.slice(0,nR).map((o,i)=>'<tr class="tap'+(S.me&&S.me.c===o.c?' hi':'')+'" data-act="opencountry" data-cc="'+esc(o.c)+'"><td><span class="cn">'+rk[i]+'. <span class="flag" style="width:auto;font-size:15px">'+(flag(o.c)||'')+'</span>'+esc(cname(o.c))+'</span></td><td>'+o.n+'</td><td>'+o.ev.size+'</td></tr>').join('')+'</tbody></table>'+moreBtn('f4',rows.length,10,'countries');
+  const open=S.smore.f4ev||evs.length<=6;
+  html+='<div class="ev" style="margin:14px 0 4px">'+(cat?esc(CAT_NAMES[cat]):'Each event')+' · '+evs.length+' event'+(evs.length===1?'':'s')+'</div>';
+  if(open) html+='<div class="f4list">'+evs.map(e=>{ const dr=drawFor(e.ev); const inner='<span class="f4ev">'+esc(e.ev)+'</span><span class="f4s">'+e.sides.map(f4Flags).map(x=>'<span class="f4side">'+x+'</span>').join('')+'</span>'+(dr?'<span class="muted">›</span>':''); return dr?'<button class="f4row" data-act="draw" data-id="'+dr.id+'" data-pid="'+esc(me)+'" data-from="stats">'+inner+'</button>':'<div class="f4row">'+inner+'</div>'; }).join('')+'</div>';
+  if(evs.length>6) html+='<button class="btn ghost more" data-act="smore" data-k="f4ev">'+(S.smore.f4ev?'Hide the events':'Show the '+evs.length+' events')+'</button>';
+  return html+'<p class="tiny muted" style="margin:8px 0 0">A doubles pair counts as two players. Tap an event to open its draw.</p></div>';
+}
+function partHtml(st){ // participants per country: players who have played at least one match
+  const C=new Map(); for(const p of st.players){ if(p.c) C.set(p.c,(C.get(p.c)||0)+1); }
+  const rows=[...C.entries()].sort((x,y)=>y[1]-x[1]||cname(x[0]).localeCompare(cname(y[0])));
+  if(!rows.length) return '';
+  const rk=rankRows(rows,r=>r[1]); const top=rows[0][1]; const nR=S.smore.part?rows.length:10;
+  return '<h2>Participants</h2><div class="card"><table class="stbl"><thead><tr><th>Country</th><th>Players</th><th></th></tr></thead><tbody>'+rows.slice(0,nR).map(([c,n],i)=>'<tr class="tap'+(S.me&&S.me.c===c?' hi':'')+'" data-act="opencountry" data-cc="'+esc(c)+'"><td><span class="cn">'+rk[i]+'. <span class="flag" style="width:auto;font-size:15px">'+(flag(c)||'')+'</span>'+esc(cname(c))+'</span></td><td>'+n+'</td><td style="width:34%"><span class="pbar" style="width:'+Math.max(4,Math.round(100*n/top))+'%"></span></td></tr>').join('')+'</tbody></table>'+moreBtn('part',rows.length,10,'countries')+'<p class="tiny muted" style="margin:8px 0 0">'+fmtN(st.players.length)+' players from '+rows.length+' countries'+(st.age?' in the '+st.age+'+ events':'')+', counting everyone who has played at least one match.</p></div>';
 }
 
 
@@ -1069,7 +1139,7 @@ function bbox(m, d, ctx, pid){ // one match box in the bracket
 function viewDraw(ctx){
   ensureDrawList();
   const dr=(D.drawList||[]).find(x=>x.id===S.draw.id); const d=D.draws[S.draw.id];
-  const backLabel=S.draw.from==='player'?'‹ Player':'‹ Draws';
+  const backLabel=S.draw.from==='player'?'‹ Player':S.draw.from==='stats'?'‹ Stats':'‹ Draws';
   let html='<div class="row" style="margin-bottom:6px"><button class="btn ghost" data-act="drawback">'+backLabel+'</button><h2 class="grow" style="margin:0">'+esc(dr?dr.name:'Draw')+'</h2>'+(S.draw.pid&&d&&playerMatchesInDraw(d,S.draw.pid).length?'<button class="btn" data-act="jumpme">Find me</button>':'')+'</div>';
   if(!d){
     if(S.drawErr) html+='<div class="banner err">Could not load the draw ('+esc(S.drawErr)+'). <button class="btn ghost" data-act="drawretry">Retry</button></div>';
@@ -1196,11 +1266,12 @@ document.getElementById('view').addEventListener('click',e=>{
   else if(act==='tab'){ S.tab=b.dataset.tab; store.set('tab',S.tab); S.q=''; S.draw=null; S.from=null; render(); }
   else if(act==='sage'){ S.sage=+b.dataset.a||0; render(); }
   else if(act==='smore'){ const k=b.dataset.k; S.smore[k]=!S.smore[k]; render({keepScroll:true}); }
+  else if(act==='scat'){ S.scat=b.dataset.c||''; render({keepScroll:true}); }
   else if(act==='opencountry'){ S.country=b.dataset.cc; store.set('country',S.country); S.cday=null; S.cfilter='all'; S.tab='countries'; store.set('tab',S.tab); S.from=null; render(); }
   else if(act==='follow'){ const p=pick(); if(!p) return; if(isFollowed(p.i)) S.follow=S.follow.filter(x=>x.i!==p.i); else S.follow.push(p); store.set('follow',S.follow); render({keepScroll:true}); }
   else if(act==='share'){ share(id,b.dataset.name||''); }
-  else if(act==='draw'){ S.draw={id:b.dataset.id, pid:b.dataset.pid||null, from:b.dataset.from||'list', part:null}; S.drawErr=null; store.set('lastdraw',b.dataset.id); render(); }
-  else if(act==='drawback'){ const from=S.draw&&S.draw.from; S.draw=null; if(from==='list'){ S.tab='draws'; store.set('tab',S.tab); } render(); }
+  else if(act==='draw'){ if(b.dataset.from==='stats') S.statsY=window.scrollY||0; S.draw={id:b.dataset.id, pid:b.dataset.pid||null, from:b.dataset.from||'list', part:null}; S.drawErr=null; store.set('lastdraw',b.dataset.id); render(); }
+  else if(act==='drawback'){ const from=S.draw&&S.draw.from; S.draw=null; if(from==='list'){ S.tab='draws'; store.set('tab',S.tab); } if(from==='stats'){ S.tab='stats'; render(); window.scrollTo(0,S.statsY||0); } else render(); }
   else if(act==='drawpart'){ if(S.draw){ S.draw.part=b.dataset.part; S.draw.scrollCol=0; S.draw.keepLeft=null; render(); } }
   else if(act==='drawcol'){ const br=document.getElementById('bracket'); if(br&&br.__toCol) br.__toCol(+b.dataset.i,true); }
   else if(act==='jumpme'){ const br=document.getElementById('bracket'); const d=S.draw&&D.draws[S.draw.id]; if(br&&d&&S.draw.pid){ const pos=playerPosition(d,S.draw.pid); if(pos){ const parts=drawParts(d); const part=partOfMatch(d,parts,pos.m); if(part.key!==S.draw.part){ S.draw.part=part.key; S.draw.pending=pos.m.n; render(); } else { const box=br.querySelector('.bbox[data-code="'+pos.m.n+'"]'); if(box) jumpToBox(br,box,true); } } } }
