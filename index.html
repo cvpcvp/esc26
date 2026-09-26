@@ -252,6 +252,16 @@ h3{font:600 15px/1.2 "Barlow",system-ui,sans-serif;margin:0 0 6px}
 .tag svg{width:12px;height:12px;flex:0 0 auto}
 .tag.sm{font-size:10px;padding:2px 6px 2px 5px}
 .prow .tags{margin-top:3px}
+/* nudges toward the Stats tab: a dot on the tab until it has been opened once, and a "Did you know?" line */
+.tab{position:relative}
+.tab.new::after{content:'';position:absolute;top:calc(50% - 21px);left:calc(50% + 7px);width:8px;height:8px;border-radius:50%;background:var(--live);box-shadow:0 0 0 2px var(--surface)}
+@media (prefers-reduced-motion:no-preference){.tab.new::after{animation:nudge 1.6s ease-in-out 1.5s 3}}
+@keyframes nudge{0%,100%{transform:scale(1)}25%{transform:scale(1.5)}50%{transform:scale(1)}}
+.fact{display:flex;align-items:center;gap:10px;width:100%;text-align:left;margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;font-size:13.5px;line-height:1.35;box-shadow:var(--shadow);cursor:pointer}
+.fact:active{background:var(--surface2)}
+.fact .fi{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--hl);color:var(--ink)}
+.fact .fi svg{width:15px;height:15px}
+.fact .fl{display:block;font-size:10.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--ink3);margin-bottom:1px}
 .kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 10px}
 .kpis.k2{grid-template-columns:repeat(2,minmax(0,1fr))}
 .kpi .v{font:700 26px/1.05 "Barlow Condensed",system-ui,sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -490,6 +500,7 @@ const S = {
   q:'', player:null, // player view inside Players tab
   from:null, fromY:0, // tab a player page was opened from (stats or countries), so Back returns there
   sage:0, smore:{}, scat:'', // Stats tab: age group filter, which lists are expanded, final four category
+  factI: Math.floor(Math.random()*1e6), // which "Did you know?" fact to show, picked once per visit
   pday: {}
 };
 function isFollowed(id){ return S.follow.some(p=>p.i===id); }
@@ -600,6 +611,8 @@ function render(opts){
   const keep=opts.bg||opts.keepScroll; const y=window.scrollY||window.pageYOffset||0;
   if(S.draw){ const br=document.getElementById('bracket'); S.draw.keepLeft=br?br.scrollLeft:null; }
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.tab===S.tab));
+  if(S.tab==='stats'&&!S.draw&&!store.get('seenstats',0)) store.set('seenstats',1);
+  { const ts=document.getElementById('tab-stats'); if(ts) ts.classList.toggle('new',!store.get('seenstats',0)); }
   const v=document.getElementById('view');
   let html='';
   if(!publishedDays().length){
@@ -686,6 +699,7 @@ function viewMe(ctx){
   if(!S.me){
     html+='<div class="hero"><h2>Who are you?</h2><p>Type your name as it appears in the draw. This phone will remember it.</p>'+searchBox('q-me','Your name, e.g. Pedersen',S.q,'setme')+'</div>';
     html+='<div class="sres" id="q-me-res">'+searchResults(S.q,{act:'setme'})+'</div>';
+    html+=factHtml();
     if(S.follow.length) html+=followSection(ctx);
     html+=madeBy();
     return html;
@@ -694,6 +708,7 @@ function viewMe(ctx){
   html+='<div class="card">'+playerHead(p)+'<div class="row" style="margin-top:10px;flex-wrap:wrap"><button class="btn" data-act="share" data-id="'+p.i+'" data-name="'+esc(p.n)+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg>Share</button><button class="btn" data-act="notme">Not me / change</button></div></div>';
   const nb=nextBanner(p,ctx); if(nb) html+='<div style="margin-top:10px">'+nb+'</div>';
   html+=playerStatsCard(p);
+  html+=factHtml();
   html+=drawButtons(p);
   html+=playerMatches(p,ctx);
   html+=followSection(ctx);
@@ -723,6 +738,7 @@ function viewPlayers(ctx){
   let html='<h2>Find a player</h2>'+searchBox('q-players','Name, e.g. Christensen',S.q,'open');
   html+='<div class="sres" id="q-players-res">'+searchResults(S.q,{act:'open'})+'</div>';
   if(norm(S.q).length<2){
+    html+=factHtml();
     html+=followSection(ctx);
     html+='<p class="small muted" style="margin-top:14px">'+D.players.size+' players in the schedule so far. Search works on any part of the name and ignores accents.</p>';
   }
@@ -888,6 +904,19 @@ function computeStats(age){
     if(highGames[0]){ const t=highGames[0].t; highGames.filter(x=>x.t===t).slice(0,3).forEach(x=>x.m.a.concat(x.m.b).forEach(p=>addTag(p.i,'Highest-scoring game',x.hi+'-'+x.lo))); }
   }
   return {age, played, players, P, boards, rank, min, points, countriesN:C.size, C, countries, crank, ages, longest, shortest, highGames, comebacks, three, clean:clean.length, upsets, seeded:seeded.length, medalTable, pmedalList, final4, tags};
+}
+function factHtml(){ // one fun fact from the Stats tab, picked once per visit; tapping it opens Stats
+  const st=stats(0); if(!st.played.length) return '';
+  const F=[], lead=(arr,v)=>arr.length&&(arr.length<2||v(arr[0])>v(arr[1])); // only when there is a single leader
+  const bm=st.boards.min; if(lead(bm,p=>p.min)) F.push('<b>'+esc(bm[0].n)+'</b> has spent the most time on court so far: <b>'+fmtN(bm[0].min)+' min</b>.');
+  const L=st.longest[0]; if(L) F.push('The longest match so far lasted <b>'+L.du+' min</b> ('+esc(L.ev)+' '+esc(L.rd)+').');
+  const H=st.highGames[0]; if(H) F.push('The highest-scoring game so far ended <b>'+H.hi+'-'+H.lo+'</b> ('+esc(H.m.ev)+').');
+  if(st.comebacks>1) F.push('<b>'+fmtN(st.comebacks)+' matches</b> have been won after losing the first game.');
+  F.push('<b>'+fmtN(st.played.length)+' matches</b> and <b>'+fmtN(st.min/60)+' hours</b> of badminton played so far.');
+  if(st.final4.length){ const C=new Map(); for(const e of st.final4) for(const t of e.sides) for(const p of t) if(p.c) C.set(p.c,(C.get(p.c)||0)+1);
+    const r=[...C.entries()].sort((x,y)=>y[1]-x[1]); if(lead(r,x=>x[1])) F.push('<b>'+esc(cname(r[0][0]))+'</b> has the most players in the semifinals: <b>'+r[0][1]+'</b>.'); }
+  const M=st.medalTable; if(M.length&&M[0].g&&lead(M,x=>x.g)) F.push('<b>'+esc(cname(M[0].c))+'</b> leads the medal table with <b>'+M[0].g+' gold</b>.');
+  return '<button class="fact" data-act="tab" data-tab="stats"><span class="fi">'+TROPHY+'</span><span class="grow"><span class="fl">Did you know?</span>'+F[S.factI%F.length]+'</span><span class="muted">›</span></button>';
 }
 function tagsHtml(pid, small){
   const l=stats(0).tags.get(pid); if(!l||!l.length) return '';
