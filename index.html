@@ -868,8 +868,8 @@ function computeStats(age){
     if(rd==='SF') give(lose,'b'); else { give(win,'g'); give(lose,'s'); }
   }
   const medalTable=[...medals.values()].sort((x,y)=>y.g-x.g||y.s-x.s||y.b-x.b||x.c.localeCompare(y.c));
-  // medals per player: gold 3 points, silver 2, bronze 1; equal points are split by golds, then silvers
-  const pmedalList=[...pmedals.entries()].map(([pid,l])=>{ const p=P.get(pid)||D.players.get(pid)||{i:pid,n:'',c:''}; const o={i:pid,n:p.n,c:p.c,g:0,s:0,b:0,l}; l.forEach(x=>o[x.kind]++); o.pts=3*o.g+2*o.s+o.b; return o; })
+  // medals per player: gold 4 points, silver 2, bronze 1; equal points are split by golds, then silvers
+  const pmedalList=[...pmedals.entries()].map(([pid,l])=>{ const p=P.get(pid)||D.players.get(pid)||{i:pid,n:'',c:''}; const o={i:pid,n:p.n,c:p.c,g:0,s:0,b:0,l}; l.forEach(x=>o[x.kind]++); o.pts=4*o.g+2*o.s+o.b; return o; })
     .sort((x,y)=>y.pts-x.pts||y.g-x.g||y.s-x.s||x.n.localeCompare(y.n));
   { let prev=null,pos=0; pmedalList.forEach((o,i)=>{ const k=o.pts+'/'+o.g+'/'+o.s; if(k!==prev){ pos=i+1; prev=k; } o.rk=pos; }); }
   // final four: every player in a semifinal (scheduled or played), per event, counted per country
@@ -1005,7 +1005,7 @@ function pmedalHtml(st){ // medals per player, gold counts most
   const mine=S.me&&!shown.some(o=>o.i===S.me.i)?l.find(o=>o.i===S.me.i):null;
   const order=x=>({g:0,s:1,b:2})[x.kind];
   const row=o=>lbRow(o,o.rk,'<span class="mdl">'+o.l.slice().sort((x,y)=>order(x)-order(y)).map(x=>MEDAL_EMOJI[x.kind]).join('')+'</span>','',o.l.slice().sort((x,y)=>order(x)-order(y)).map(x=>MEDAL_WORD[x.kind]+' '+x.ev).join(' · '));
-  return '<div class="card lb" style="margin-top:12px"><div class="shead"><span class="ev">Medals per player</span></div><div class="list">'+shown.concat(mine?[mine]:[]).map(row).join('')+'</div>'+moreBtn('pm',l.length,10,'players')+'<p class="tiny muted" style="margin:8px 0 0">Ranked with gold counting 3, silver 2 and bronze 1. Equal totals are split by golds, then silvers.</p></div>';
+  return '<div class="card lb" style="margin-top:12px"><div class="shead"><span class="ev">Medals per player</span></div><div class="list">'+shown.concat(mine?[mine]:[]).map(row).join('')+'</div>'+moreBtn('pm',l.length,10,'players')+'<p class="tiny muted" style="margin:8px 0 0">Ranked with gold counting 4, silver 2 and bronze 1. Equal totals are split by golds, then silvers.</p></div>';
 }
 function f4Flags(t){ return t.map(p=>'<span class="flag" title="'+esc(cname(p.c))+'">'+(flag(p.c)||'')+'</span>').join(''); }
 function final4Html(st){ // which countries have the most players in the semifinals
